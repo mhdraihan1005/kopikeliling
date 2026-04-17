@@ -1,36 +1,24 @@
-"use client";
-
 import Link from "next/link";
-import { FaShoppingCart } from "react-icons/fa";
 
-export default function Navbar({ cartCount }: any) {
+export default function Navbar() {
   return (
-    <nav className="flex justify-between items-center px-10 py-4 bg-gray-800 text-white">
-      
-      {/* LOGO */}
-      <h1 className="text-xl font-bold">☕ E-Coffee Keliling</h1>
-
-      {/* MENU */}
-      <div className="flex items-center gap-6">
-
-        <Link href="/">Beranda</Link>
-        <Link href="/menu">Menu</Link>
-        <Link href="/riwayat">Riwayat</Link>
-        <Link href="#">Kontak</Link>
-        <Link href="#">Login</Link>
-
-        {/* CART */}
-        <div className="relative text-2xl cursor-pointer">
-          <FaShoppingCart />
-
-          {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-              {cartCount}
-            </span>
-          )}
-        </div>
-
+    <header className="sticky top-0 z-20 border-b border-zinc-200/70 bg-white/95 backdrop-blur transition-colors duration-200 dark:border-zinc-800 dark:bg-zinc-950/95">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <Link href="/" className="text-lg font-semibold text-zinc-950 dark:text-white">
+          MyProject
+        </Link>
+        <nav className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-300">
+          <Link href="/" className="hover:text-zinc-950 dark:hover:text-white">
+            Home
+          </Link>
+          <Link href="/about" className="hover:text-zinc-950 dark:hover:text-white">
+            About
+          </Link>
+          <Link href="/contact" className="hover:text-zinc-950 dark:hover:text-white">
+            Contact
+          </Link>
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }
