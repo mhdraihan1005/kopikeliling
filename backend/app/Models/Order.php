@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Order extends Model
+{
+    protected $fillable = ['user_id', 'total_price', 'items', 'status', 'snap_token'];
+
+    protected $casts = [
+        'items' => 'array'
+    ];
+}

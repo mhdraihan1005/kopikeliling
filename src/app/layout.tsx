@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import React from "react";
-import { CartProvider } from "./context/CartContext";
+import { CartProvider } from "@/contexts/CartContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+
+import CustomToaster from "@/components/CustomToaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,6 +13,8 @@ export const metadata: Metadata = {
   title: "E-Coffee Keliling",
   description: "Coffee App",
 };
+
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -19,9 +24,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <Script
+          src="https://app.sandbox.midtrans.com/snap/snap.js"
+          data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || 'SB-Mid-client-Rl_bi2_3GbNCa3K9'}
+          strategy="beforeInteractive"
+        />
+        <AuthProvider>
+          <CartProvider>
+            {children}
+            <CustomToaster />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
