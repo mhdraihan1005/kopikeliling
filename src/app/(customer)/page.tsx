@@ -7,17 +7,11 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen bg-black selection:bg-amber-500/30">
+    <div className="flex flex-col min-h-screen selection:bg-amber-500/30">
       <CustomerNavbar />
 
       <main className="flex-1 relative flex flex-col items-center justify-center px-6 py-20 lg:py-32 overflow-hidden">
-        {/* Full-Screen Background Image (Retained) */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/Barista.png')" }}
-        />
-        {/* Professional Dark Overlay */}
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" />
+
 
         {/* Content Container */}
         <div className="relative z-10 flex flex-col items-center text-center max-w-6xl mx-auto w-full">

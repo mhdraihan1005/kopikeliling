@@ -81,16 +81,11 @@ export default function RiwayatPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-black selection:bg-amber-500/30">
+    <div className="flex flex-col min-h-screen selection:bg-amber-500/30">
       <CustomerNavbar />
 
       <main className="flex-1 relative w-full">
-        {/* Background Overlay Retained */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat fixed"
-          style={{ backgroundImage: "url('/Barista.png')" }}
-        />
-        <div className="absolute inset-0 bg-black/85 backdrop-blur-[2px]" />
+
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-10 lg:py-16">
           

@@ -82,17 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
 
-      const data = await response.json();
-      
-      const userData: User = {
-        id: data.user.id.toString(),
-        name: data.user.name,
-        role: data.role
-      };
-      
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', data.token);
       return true;
     } catch (error) {
       console.error("Register failed", error);

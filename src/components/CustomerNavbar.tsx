@@ -33,16 +33,21 @@ export default function CustomerNavbar() {
     { name: "Pesanan", href: "/riwayat" },
   ];
 
-  return (
-    <nav className="rounded-none border border-zinc-200/80 bg-[#333333] px-6 py-3 shadow-sm dark:border-zinc-800">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 text-sm">
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  return (
+    <nav className="border-b border-zinc-200/80 bg-[#333333] shadow-sm dark:border-zinc-800 relative z-50">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
+
+        {/* Logo */}
         <div className="flex items-center gap-2 font-bold text-white">
           <Coffee size={20} className="text-white" />
-          <span className="tracking-tight">E-Coffee Keliling</span>
+          <span className="tracking-tight hidden sm:block">E-Coffee Keliling</span>
+          <span className="tracking-tight sm:hidden">E-Coffee</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-2 text-sm">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -88,30 +93,97 @@ export default function CustomerNavbar() {
               )}
             </div>
           ) : (
-            <Link href="/login" className="ml-2 font-bold text-white hover:text-zinc-300">
+            <Link href="/login" className="ml-2 px-4 py-1.5 rounded-lg font-bold text-white bg-amber-600 hover:bg-amber-500 transition-colors">
               Login
             </Link>
           )}
+        </div>
 
+        {/* Mobile & Cart Buttons */}
+        <div className="flex items-center gap-3">
+          {/* Cart Icon (Always Visible) */}
           <button 
             onClick={() => setIsCartOpen(true)}
-            className="ml-4 relative p-2 text-white hover:text-zinc-300 transition-colors"
+            className="relative p-2 text-white hover:text-zinc-300 transition-colors"
           >
             <ShoppingCart size={20} />
             {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
+              <span className="absolute top-0 right-0 bg-amber-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
                 {totalItems}
               </span>
             )}
           </button>
+
+          {/* Hamburger Menu (Mobile Only) */}
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 text-white md:hidden hover:bg-zinc-700/50 rounded-lg transition-colors"
+          >
+            <div className="space-y-1.5 w-5">
+              <div className={`h-0.5 bg-white transition-all ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+              <div className={`h-0.5 bg-white transition-all ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
+              <div className={`h-0.5 bg-white transition-all ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            </div>
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-zinc-700 bg-[#333333] px-4 py-3 pb-6 flex flex-col gap-3 shadow-xl absolute w-full left-0 z-40">
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`rounded-lg px-4 py-2.5 font-medium transition-all ${
+                  isActive
+                    ? "bg-amber-500/10 text-amber-500"
+                    : "text-zinc-300 hover:bg-zinc-700/50 hover:text-white"
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+          
+          <div className="h-px w-full bg-zinc-700 my-1 font-bold"></div>
+          
+          {user ? (
+            <div className="flex flex-col gap-2">
+              <div className="px-4 py-2 text-white">
+                <div className="font-medium text-sm">Masuk sebagai: {user.name}</div>
+              </div>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="rounded-lg px-4 py-2.5 text-left font-medium text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-all"
+              >
+                <LogOut size={18} />
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link 
+              href="/login" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="rounded-lg px-4 py-2.5 font-bold text-black bg-amber-500 text-center transition-all mt-2"
+            >
+              Login / Daftar
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* Render Cart Sidebar */}
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
       {showUserMenu && (
-        <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
+        <div className="fixed inset-0 z-30" onClick={() => setShowUserMenu(false)} />
       )}
     </nav>
   );

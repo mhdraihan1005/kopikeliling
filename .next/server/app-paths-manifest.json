@@ -1,7 +1,7 @@
 {
-  "/(customer)/menu/page": "app/(customer)/menu/page.js",
-  "/(customer)/riwayat/page": "app/(customer)/riwayat/page.js",
-  "/(customer)/invoice/[id]/page": "app/(customer)/invoice/[id]/page.js",
   "/login/page": "app/login/page.js",
-  "/(admin)/admin/page": "app/(admin)/admin/page.js"
+  "/register/page": "app/register/page.js",
+  "/(customer)/menu/page": "app/(customer)/menu/page.js",
+  "/(customer)/page": "app/(customer)/page.js",
+  "/(customer)/riwayat/page": "app/(customer)/riwayat/page.js"
 }

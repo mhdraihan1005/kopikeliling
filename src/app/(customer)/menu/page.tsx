@@ -60,16 +60,11 @@ export default function MenuPage() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-black selection:bg-amber-500/30">
+    <div className="flex flex-col min-h-screen selection:bg-amber-500/30">
       <CustomerNavbar />
 
       <main className="flex-1 relative">
-        {/* Background Overlay Retained */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat fixed"
-          style={{ backgroundImage: "url('/Barista.png')" }}
-        />
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-[4px]" />
+
 
         {/* Konten Utama */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 lg:py-24">

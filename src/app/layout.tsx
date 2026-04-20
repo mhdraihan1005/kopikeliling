@@ -23,7 +23,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={inter.className + " bg-black text-white"}>
+        {/* Global Fixed Background Support untuk Customer Pages */}
+        <div className="fixed inset-0 -z-50 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/Barista.png')" }} />
+        <div className="fixed inset-0 -z-40 bg-black/80 backdrop-blur-[4px]" />
+
         <Script
           src="https://app.sandbox.midtrans.com/snap/snap.js"
           data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || 'SB-Mid-client-Rl_bi2_3GbNCa3K9'}
