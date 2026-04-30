@@ -39,7 +39,8 @@ class OrderController extends Controller
             'user_id' => $request->user_id,
             'total_price' => $request->total_price,
             'items' => $request->items,
-            'status' => 'Pending'
+            'status' => 'Pending',
+            'payment_status' => 'Unpaid'
         ]);
 
         \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
@@ -85,11 +86,14 @@ class OrderController extends Controller
             
             if ($order) {
                 if ($request->transaction_status == 'capture' || $request->transaction_status == 'settlement') {
-                    $order->status = 'Selesai'; // Paid / Done
+                    $order->payment_status = 'Paid';
+                    if ($order->status == 'Pending') {
+                        $order->status = 'Diproses';
+                    }
                 } elseif ($request->transaction_status == 'pending') {
-                    $order->status = 'Pending';
+                    $order->payment_status = 'Pending';
                 } elseif ($request->transaction_status == 'deny' || $request->transaction_status == 'expire' || $request->transaction_status == 'cancel') {
-                    $order->status = 'Gagal'; // Failed or Cancelled
+                    $order->payment_status = 'Failed';
                 }
                 $order->save();
                 return response()->json(['message' => 'success']);
@@ -103,7 +107,12 @@ class OrderController extends Controller
     {
         $order = Order::find($id);
         if ($order) {
-            $order->status = $request->status;
+            if ($request->has('status')) {
+                $order->status = $request->status;
+            }
+            if ($request->has('payment_status')) {
+                $order->payment_status = $request->payment_status;
+            }
             $order->save();
             return response()->json(['message' => 'Status updated successfully']);
         }

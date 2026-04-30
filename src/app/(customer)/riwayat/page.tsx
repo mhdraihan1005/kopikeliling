@@ -17,6 +17,7 @@ interface Order {
   id: number;
   total_price: number;
   status: string;
+  payment_status: string;
   items: OrderItem[];
   created_at: string;
 }
@@ -59,12 +60,19 @@ export default function RiwayatPage() {
             <CheckCircle2 size={14} /> Selesai
           </span>
         );
+      case 'Diproses':
+        return (
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-sm font-medium">
+            <Clock size={14} /> Diproses
+          </span>
+        );
       case 'Pending':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full text-sm font-medium">
-            <Clock size={14} /> Tertunda
+            <Clock size={14} /> Menunggu
           </span>
         );
+      case 'Dibatalkan':
       case 'Gagal':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-full text-sm font-medium">
@@ -75,6 +83,35 @@ export default function RiwayatPage() {
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-neutral-800 text-neutral-400 border border-neutral-700 rounded-full text-sm font-medium">
             Status Tidak Dikenal
+          </span>
+        );
+    }
+  };
+
+  const getPaymentBadge = (payment_status: string) => {
+    switch (payment_status) {
+      case 'Paid':
+        return (
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-sm font-medium">
+            <CheckCircle2 size={14} /> Lunas
+          </span>
+        );
+      case 'Pending':
+        return (
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-full text-sm font-medium">
+            <Clock size={14} /> Belum Dibayar
+          </span>
+        );
+      case 'Failed':
+        return (
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-full text-sm font-medium">
+            <XCircle size={14} /> Gagal
+          </span>
+        );
+      default:
+        return (
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-neutral-800 text-neutral-400 border border-neutral-700 rounded-full text-sm font-medium">
+            Belum Dibayar
           </span>
         );
     }
@@ -140,7 +177,11 @@ export default function RiwayatPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-white/40 mb-1">Status</p>
+                        <p className="text-xs text-white/40 mb-1">Status Pembayaran</p>
+                        {getPaymentBadge(order.payment_status)}
+                      </div>
+                      <div>
+                        <p className="text-xs text-white/40 mb-1">Status Pesanan</p>
                         {getStatusBadge(order.status)}
                       </div>
                     </div>

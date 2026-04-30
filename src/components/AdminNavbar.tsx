@@ -25,13 +25,15 @@ export default function AdminNavbar() {
   };
 
   return (
-    <nav className="bg-[#424242] text-white shadow-md z-50">
+    <nav className="bg-zinc-900/80 backdrop-blur-md border-b border-zinc-800 text-white shadow-sm relative z-50">
       <div className="w-full flex items-center justify-between px-6 py-4">
         
         {/* Left: Brand Icon */}
         <div className="flex items-center gap-3">
-          <Coffee size={32} strokeWidth={1.5} className="text-white" />
-          <span className="text-xl font-bold tracking-wide">E-Coffee Keliling</span>
+          <div className="bg-amber-600 p-2 rounded-xl shadow-lg shadow-amber-600/20">
+            <Coffee size={24} strokeWidth={2} className="text-white" />
+          </div>
+          <span className="text-xl font-black tracking-wide bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">E-Coffee Keliling</span>
         </div>
 
         {/* Right: User */}
@@ -41,21 +43,24 @@ export default function AdminNavbar() {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 hover:text-gray-300 transition-colors font-bold text-sm"
+                className="flex items-center gap-2 hover:text-amber-500 transition-colors font-bold text-sm bg-zinc-800/80 px-4 py-2 rounded-full border border-zinc-700 hover:border-zinc-600"
               >
-                <User size={18} />
+                <div className="bg-zinc-700/80 p-1.5 rounded-full text-zinc-300">
+                  <User size={16} />
+                </div>
                 <span>{user.name}</span>
+                <ChevronDown size={14} className="text-gray-400" />
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-3 w-48 bg-white rounded-lg shadow-xl py-1 z-50 text-neutral-800">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="font-bold text-sm">{user.name}</p>
-                    <p className="text-xs text-neutral-500 truncate">{user.email}</p>
+                <div className="absolute right-0 mt-3 w-48 bg-zinc-900 rounded-xl shadow-2xl py-1 z-50 text-white border border-zinc-800 backdrop-blur-xl">
+                  <div className="px-4 py-3 border-b border-zinc-800/50">
+                    <p className="font-bold text-sm text-amber-500">{user.name}</p>
+                    <p className="text-xs text-zinc-500 truncate mt-0.5">{user.email}</p>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                    className="w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-zinc-800/80 flex items-center gap-2 font-medium transition-colors"
                   >
                     <LogOut size={16} /> Keluar
                   </button>

@@ -53,7 +53,7 @@ export default function CartSidebar({
               await fetch(`http://127.0.0.1:8000/api/orders/${data.order.id}/status`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: 'Selesai' }),
+                body: JSON.stringify({ payment_status: 'Paid', status: 'Diproses' }),
               });
             } catch (e) {
               console.error('Failed to update status', e);

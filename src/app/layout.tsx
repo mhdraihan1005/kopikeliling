@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 
 import Script from "next/script";
 
+import AiBarista from "@/components/AiBarista";
+
 export default function RootLayout({
   children,
 }: {
@@ -37,6 +39,7 @@ export default function RootLayout({
           <CartProvider>
             {children}
             <CustomToaster />
+            <AiBarista />
           </CartProvider>
         </AuthProvider>
       </body>
