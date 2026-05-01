@@ -27,25 +27,31 @@ export default function AiBarista() {
 
     const userMessage = input.trim();
     setInput("");
-    setMessages(prev => [...prev, { role: "user", content: userMessage }]);
+    
+    const newMessages = [...messages, { role: "user", content: userMessage }];
+    setMessages(newMessages);
     setIsLoading(true);
 
-    // AI SIMULATION - Meniru respon LLM untuk demonstrasi dosen!
-    setTimeout(() => {
-      let reply = "Pilihan yang menarik! Berdasarkan algoritma saya, saya sangat merekomendasikan [Hot Caffè Latte] kami dengan sedikit sentuhan pemanis. Kombinasi yang pas sekali untuk Anda!";
-      
-      const lowerInput = userMessage.toLowerCase();
-      if (lowerInput.includes("panas") || lowerInput.includes("gerah") || lowerInput.includes("siang")) {
-        reply = "Mendeteksi suhu yang panas! 🌡️ Jika sedang terik, saya rekomendasikan mencoba [Cold Brew] atau [Iced Caramel Macchiato] kami yang diekstraksi sangat segar!";
-      } else if (lowerInput.includes("ngantuk") || lowerInput.includes("tugas") || lowerInput.includes("skripsi")) {
-        reply = "Butuh dorongan energi ekstra untuk fokus? 📚 [Americano Spesial] kami memiliki shot espresso ganda yang terbukti secara klinis bikin mata langsung segar!";
-      } else if (lowerInput.includes("manis") || lowerInput.includes("gula")) {
-        reply = "Wah, Anda tim manis nih! [Palm Sugar Iced Coffee] (Kopi Susu Aren) adalah produk terlaris kami. Keseimbangan rasio susu dan gula arennya sempurna mengatur mood.";
-      }
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: newMessages }),
+      });
 
-      setMessages(prev => [...prev, { role: "assistant", content: reply }]);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setMessages(prev => [...prev, { role: "assistant", content: data.message }]);
+      } else {
+        setMessages(prev => [...prev, { role: "assistant", content: data.message || "Maaf, terjadi kesalahan saat menghubungi server." }]);
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      setMessages(prev => [...prev, { role: "assistant", content: "Maaf, koneksi terputus. Silakan coba lagi." }]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

@@ -1,8 +1,6 @@
 {
-  "/login/page": "app/login/page.js",
-  "/(customer)/riwayat/page": "app/(customer)/riwayat/page.js",
-  "/(customer)/page": "app/(customer)/page.js",
   "/(customer)/menu/page": "app/(customer)/menu/page.js",
-  "/(admin)/admin/orders/page": "app/(admin)/admin/orders/page.js",
-  "/(admin)/admin/page": "app/(admin)/admin/page.js"
+  "/login/page": "app/login/page.js",
+  "/api/chat/route": "app/api/chat/route.js",
+  "/(customer)/page": "app/(customer)/page.js"
 }
