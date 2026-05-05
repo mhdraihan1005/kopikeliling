@@ -11,10 +11,11 @@ interface MenuItem {
   name: string;
   description: string;
   price: number;
-  image: string;
+  images: any[];
   rating: number;
   prepTime: string;
   category: string;
+  stock: number;
 }
 
 async function fetchMenuItems(): Promise<MenuItem[]> {
@@ -58,6 +59,13 @@ export default function MenuPage() {
                           item.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const getImageUrl = (url: string) => {
+    if (!url) return '/kopi1.png';
+    if (url.startsWith('/storage/')) return `http://127.0.0.1:8000${url}`;
+    if (!url.startsWith('http') && !url.startsWith('/')) return `/${url}`;
+    return url;
+  };
 
   return (
     <div className="flex flex-col min-h-screen selection:bg-amber-500/30">
@@ -123,56 +131,7 @@ export default function MenuPage() {
               {/* Menu Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredMenu.map((item) => (
-                  <div 
-                    key={item.id} 
-                    className="group rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl hover:bg-black/60 hover:border-white/20 transition-all duration-500 flex flex-col overflow-hidden shadow-2xl"
-                  >
-                    {/* Visual Card Top */}
-                    <div className="relative w-full h-52 bg-gradient-to-b from-neutral-800 to-black flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-700 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-600 via-transparent to-transparent"></div>
-                      
-                      {item.category === "Hot Coffee" ? <Flame size={56} className="text-amber-500/80 drop-shadow-lg z-10 group-hover:scale-110 transition-transform duration-500" />
-                        : item.category === "Cold Coffee" ? <CupSoda size={56} className="text-amber-500/80 drop-shadow-lg z-10 group-hover:scale-110 transition-transform duration-500" />
-                        : <Coffee size={56} className="text-amber-500/80 drop-shadow-lg z-10 group-hover:scale-110 transition-transform duration-500" />
-                      }
-                      
-                      <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5">
-                         <Star size={12} className="text-amber-400 fill-amber-400" />
-                         <span className="text-white text-xs font-bold">{item.rating}</span>
-                      </div>
-                      <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5">
-                         <Clock size={12} className="text-white/80" />
-                         <span className="text-white/80 text-xs font-medium">{item.prepTime}</span>
-                      </div>
-                    </div>
-                    
-                    {/* Content Section */}
-                    <div className="flex flex-col flex-1 p-6">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-bold text-white tracking-tight">{item.name}</h3>
-                        <span className="px-2.5 py-0.5 border border-amber-500/30 text-amber-500 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/10">
-                          {item.category}
-                        </span>
-                      </div>
-                      
-                      <p className="text-white/60 text-sm leading-relaxed mb-6 flex-1">{item.description}</p>
-                      
-                      <div className="flex justify-between items-end pt-4 border-t border-white/5">
-                        <div className="flex flex-col">
-                          <span className="text-white/40 text-xs font-medium mb-1">Harga</span>
-                          <span className="text-2xl font-black text-amber-500 drop-shadow-sm">
-                            Rp {item.price.toLocaleString()}
-                          </span>
-                        </div>
-                        <button 
-                          onClick={() => addToCart(item)} 
-                          className="px-6 py-2.5 bg-white text-black hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-500/20 active:scale-95 rounded-xl font-bold transition-all"
-                        >
-                          Pesan
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <MenuCard key={item.id} item={item} addToCart={addToCart} getImageUrl={getImageUrl} />
                 ))}
               </div>
 
@@ -213,5 +172,98 @@ function Spinner(props: any) {
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
+  );
+}
+
+function MenuCard({ item, addToCart, getImageUrl }: { item: MenuItem, addToCart: any, getImageUrl: (url: string) => string }) {
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
+
+  return (
+    <div className="group rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl hover:bg-black/60 hover:border-white/20 transition-all duration-500 flex flex-col overflow-hidden shadow-2xl">
+      {/* Visual Card Top */}
+      <div className="relative w-full h-52 bg-neutral-900 overflow-hidden">
+        {item.images && item.images.length > 0 ? (
+          <img 
+            src={getImageUrl(item.images[activeImageIdx].image_url)} 
+            alt={item.name} 
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-b from-neutral-800 to-black flex items-center justify-center">
+            <div className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-700 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-600 via-transparent to-transparent"></div>
+            {item.category === "Hot Coffee" ? <Flame size={56} className="text-amber-500/80 drop-shadow-lg z-10 group-hover:scale-110 transition-transform duration-500" />
+              : item.category === "Cold Coffee" ? <CupSoda size={56} className="text-amber-500/80 drop-shadow-lg z-10 group-hover:scale-110 transition-transform duration-500" />
+              : <Coffee size={56} className="text-amber-500/80 drop-shadow-lg z-10 group-hover:scale-110 transition-transform duration-500" />
+            }
+          </div>
+        )}
+        
+        {/* Gradient Overlay for Text Readability over Images */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none z-10"></div>
+        
+        <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 z-20">
+           <Star size={12} className="text-amber-400 fill-amber-400" />
+           <span className="text-white text-xs font-bold">{item.rating}</span>
+        </div>
+        <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 z-20">
+           <span className={`text-[10px] font-black uppercase tracking-widest ${item.stock > 0 ? 'text-amber-500' : 'text-red-500'}`}>
+             {item.stock > 0 ? `Stok: ${item.stock}` : 'Habis'}
+           </span>
+        </div>
+        <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 z-20">
+           <Clock size={12} className="text-white/80" />
+           <span className="text-white/80 text-xs font-medium">{item.prepTime}</span>
+        </div>
+      </div>
+      
+      {/* Thumbnails for Multiple Images */}
+      {item.images && item.images.length > 1 && (
+        <div className="flex gap-2 p-3 bg-neutral-900/50 border-b border-white/5 overflow-x-auto scrollbar-hide">
+          {item.images.map((img, idx) => (
+            <button
+              key={img.id}
+              onClick={() => setActiveImageIdx(idx)}
+              className={`relative h-10 w-10 flex-shrink-0 rounded-md overflow-hidden border-2 transition-all ${
+                activeImageIdx === idx ? 'border-amber-500 opacity-100' : 'border-transparent opacity-50 hover:opacity-100'
+              }`}
+            >
+              <img src={getImageUrl(img.image_url)} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Content Section */}
+      <div className="flex flex-col flex-1 p-6">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="text-xl font-bold text-white tracking-tight">{item.name}</h3>
+          <span className="px-2.5 py-0.5 border border-amber-500/30 text-amber-500 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/10">
+            {item.category}
+          </span>
+        </div>
+        
+        <p className="text-white/60 text-sm leading-relaxed mb-6 flex-1">{item.description}</p>
+        
+        <div className="flex justify-between items-end pt-4 border-t border-white/5">
+          <div className="flex flex-col">
+            <span className="text-white/40 text-xs font-medium mb-1">Harga</span>
+            <span className="text-2xl font-black text-amber-500 drop-shadow-sm">
+              Rp {item.price.toLocaleString()}
+            </span>
+          </div>
+          <button 
+            onClick={() => item.stock > 0 && addToCart(item)} 
+            disabled={item.stock <= 0}
+            className={`px-6 py-2.5 rounded-xl font-bold transition-all ${
+              item.stock > 0 
+                ? "bg-white text-black hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-500/20 active:scale-95" 
+                : "bg-white/10 text-white/30 cursor-not-allowed"
+            }`}
+          >
+            {item.stock > 0 ? "Pesan" : "Habis"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -24,6 +24,12 @@ class AuthController extends Controller
             ]);
         }
 
+        if (!$user->is_active) {
+            throw ValidationException::withMessages([
+                'email' => ['Akun Anda telah dinonaktifkan.'],
+            ]);
+        }
+
         return response()->json([
             'user' => $user,
             'token' => bin2hex(random_bytes(20)),

@@ -21,9 +21,9 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const success = await login(email, password);
+    const result = await login(email, password);
 
-    if (success) {
+    if (result.success) {
       // Tunggu localStorage terupdate, lalu kita redirect manual dengan window location ATAU useRouter
       // Biar lebih aman karena hook mungkin lag
       const userStr = localStorage.getItem('user');
@@ -34,8 +34,9 @@ export default function LoginPage() {
         else router.push('/');
       }
     } else {
-      toast.error("Email atau Password salah!");
-      setError("Email atau Password salah!");
+      const msg = result.message || "Email atau Password salah!";
+      toast.error(msg);
+      setError(msg);
       setLoading(false);
     }
   };

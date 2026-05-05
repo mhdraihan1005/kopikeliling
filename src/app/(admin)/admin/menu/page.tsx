@@ -8,11 +8,13 @@ export default function AdminMenuPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
+    stock: "0",
     category: "Coffee",
     image: "/kopi1.png",
     prepTime: "5-10 min",
@@ -37,14 +39,23 @@ export default function AdminMenuPage() {
     fetchProducts();
   }, []);
 
+  const getImageUrl = (url: string) => {
+    if (!url) return '/kopi1.png';
+    if (url.startsWith('/storage/')) return `http://127.0.0.1:8000${url}`;
+    if (!url.startsWith('http') && !url.startsWith('/')) return `/${url}`;
+    return url;
+  };
+
   const handleOpenModal = (product: any = null) => {
+    setImageFiles([]);
     if (product) {
       setFormData({
         name: product.name,
         description: product.description || "",
         price: product.price,
+        stock: product.stock || "0",
         category: product.category || "Coffee",
-        image: product.image || "/kopi1.png",
+        images: product.images || [],
         prepTime: product.prepTime || "5-10 min",
         rating: product.rating || "4.5",
       });
@@ -54,8 +65,9 @@ export default function AdminMenuPage() {
         name: "",
         description: "",
         price: "",
+        stock: "0",
         category: "Coffee",
-        image: "/kopi1.png",
+        images: [],
         prepTime: "5-10 min",
         rating: "4.5"
       });
@@ -69,18 +81,54 @@ export default function AdminMenuPage() {
     setEditingId(null);
   };
 
+  const handleDeleteImage = async (imageId: number) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus foto ini?")) return;
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/product-images/${imageId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        fetchProducts();
+        // Update local form data to remove the image immediately
+        setFormData(prev => ({
+          ...prev,
+          images: prev.images.filter((img: any) => img.id !== imageId)
+        }));
+      }
+    } catch (error) {
+      console.error("Error deleting image", error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const url = editingId 
         ? `http://127.0.0.1:8000/api/products/${editingId}` 
         : `http://127.0.0.1:8000/api/products`;
-      const method = editingId ? "PUT" : "POST";
+      
+      const payload = new FormData();
+      payload.append("name", formData.name);
+      payload.append("description", formData.description);
+      payload.append("price", formData.price.toString());
+      payload.append("stock", formData.stock.toString());
+      payload.append("category", formData.category);
+      payload.append("prepTime", formData.prepTime);
+      payload.append("rating", formData.rating);
+      
+      if (imageFiles.length > 0) {
+        imageFiles.forEach((file, index) => {
+          payload.append(`images[${index}]`, file);
+        });
+      }
+
+      if (editingId) {
+        payload.append("_method", "PUT");
+      }
 
       const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        method: "POST", // Always use POST when sending FormData containing files to Laravel
+        body: payload,
       });
 
       if (res.ok) {
@@ -137,6 +185,7 @@ export default function AdminMenuPage() {
                   <th className="p-4 font-bold">Produk</th>
                   <th className="p-4 font-bold">Kategori</th>
                   <th className="p-4 font-bold">Harga</th>
+                  <th className="p-4 font-bold">Stok</th>
                   <th className="p-4 font-bold text-center">Aksi</th>
                 </tr>
               </thead>
@@ -146,7 +195,7 @@ export default function AdminMenuPage() {
                     <td className="p-4">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-lg bg-[#1a1a1a] border border-[#3a3a3a] overflow-hidden flex-shrink-0">
-                          <img src={product.image || "/kopi1.png"} alt={product.name} className="w-full h-full object-cover" />
+                          <img src={product.images && product.images.length > 0 ? getImageUrl(product.images[0].image_url) : "/kopi1.png"} alt={product.name} className="w-full h-full object-cover" />
                         </div>
                         <div>
                           <p className="font-bold text-white group-hover:text-amber-400 transition-colors">{product.name}</p>
@@ -161,6 +210,11 @@ export default function AdminMenuPage() {
                     </td>
                     <td className="p-4 font-bold text-amber-500">
                       Rp {Number(product.price).toLocaleString()}
+                    </td>
+                    <td className="p-4">
+                      <span className={`font-bold ${Number(product.stock) <= 5 ? 'text-red-400' : 'text-gray-300'}`}>
+                        {product.stock || 0}
+                      </span>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-center gap-2">
@@ -216,7 +270,7 @@ export default function AdminMenuPage() {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-300 mb-1">Harga (Rp)</label>
                   <input 
@@ -225,20 +279,58 @@ export default function AdminMenuPage() {
                     value={formData.price}
                     onChange={(e) => setFormData({...formData, price: e.target.value})}
                     className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
-                    placeholder="25000"
+                    placeholder="Contoh: 25000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-300 mb-1">Stok</label>
+                  <input 
+                    type="number" 
+                    required
+                    value={formData.stock}
+                    onChange={(e) => setFormData({...formData, stock: e.target.value})}
+                    className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
+                    placeholder="0"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-300 mb-1">Kategori</label>
-                  <select 
+                  <select
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
+                    className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all appearance-none cursor-pointer"
                   >
                     <option value="Coffee">Coffee</option>
-                    <option value="Non-Coffee">Non-Coffee</option>
-                    <option value="Snack">Snack</option>
+                    <option value="Hot Coffee">Hot Coffee</option>
+                    <option value="Cold Coffee">Cold Coffee</option>
+                    <option value="Specialty">Specialty</option>
                   </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-300 mb-1">Rating (Bintang)</label>
+                  <input 
+                    type="number" 
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={formData.rating}
+                    onChange={(e) => setFormData({...formData, rating: e.target.value})}
+                    className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
+                    placeholder="Contoh: 4.8"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-300 mb-1">Waktu Penyajian</label>
+                  <input 
+                    type="text" 
+                    value={formData.prepTime}
+                    onChange={(e) => setFormData({...formData, prepTime: e.target.value})}
+                    className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
+                    placeholder="Contoh: 5-10 min"
+                  />
                 </div>
               </div>
 
@@ -250,6 +342,36 @@ export default function AdminMenuPage() {
                   className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all h-24 resize-none placeholder-gray-600"
                   placeholder="Deskripsi singkat produk..."
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-300 mb-1">Foto Produk Baru (Bisa pilih lebih dari 1)</label>
+                <input 
+                  type="file" 
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => setImageFiles(e.target.files ? Array.from(e.target.files) : [])}
+                  className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-amber-600 file:text-white hover:file:bg-amber-700 cursor-pointer"
+                />
+                {editingId && formData.images && formData.images.length > 0 && (
+                  <div className="mt-3">
+                    <span className="text-xs text-gray-400 block mb-2">Foto Saat Ini (Klik X untuk menghapus):</span>
+                    <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                      {formData.images.map((img: any) => (
+                        <div key={img.id} className="relative group flex-shrink-0">
+                          <img src={getImageUrl(img.image_url)} alt="Current" className="h-16 w-16 object-cover rounded border border-[#3a3a3a]" />
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteImage(img.id)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="pt-4 flex gap-3 justify-end">

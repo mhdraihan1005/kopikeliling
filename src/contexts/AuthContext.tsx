@@ -13,7 +13,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; message?: string }> => {
     try {
       const response = await fetch('http://127.0.0.1:8000/api/login', {
         method: 'POST',
@@ -44,12 +44,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password })
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        return false;
+        // Extract error message from Laravel ValidationException
+        const errorMessage = data.errors?.email?.[0] || data.message || "Login failed";
+        return { success: false, message: errorMessage };
       }
 
-      const data = await response.json();
-      
       // Simpan data user ke state
       const userData: User = {
         id: data.user.id.toString(),
@@ -60,10 +62,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('token', data.token); // Simpan token bearer asli
-      return true;
+      return { success: true };
     } catch (error) {
       console.error("Login failed", error);
-      return false;
+      return { success: false, message: "Terjadi kesalahan pada server." };
     }
   };
 

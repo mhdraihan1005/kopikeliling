@@ -6,16 +6,43 @@ use Illuminate\Http\Request;
 
 use App\Models\Order;
 use App\Models\User;
+use App\Models\Product;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
+        $this->checkExpiredOrders();
+
         $userId = $request->query('user_id');
         if ($userId) {
-            return response()->json(Order::where('user_id', $userId)->orderBy('created_at', 'desc')->get());
+            return response()->json(Order::with('reviews')->where('user_id', $userId)->orderBy('created_at', 'desc')->get());
         }
-        return response()->json(Order::orderBy('created_at', 'desc')->get());
+        return response()->json(Order::with('reviews')->orderBy('created_at', 'desc')->get());
+    }
+
+    private function checkExpiredOrders()
+    {
+        // Cari order yang statusnya Pending/Unpaid dan sudah lebih dari 5 menit
+        $expiredOrders = Order::where('payment_status', 'Unpaid')
+            ->where('status', 'Pending')
+            ->where('created_at', '<', now()->subMinutes(5))
+            ->get();
+
+        foreach ($expiredOrders as $order) {
+            // Kembalikan stok
+            foreach ($order->items as $item) {
+                $product = Product::find($item['id']);
+                if ($product) {
+                    $product->increment('stock', $item['quantity'] ?? 1);
+                }
+            }
+            
+            // Update status jadi Dibatalkan
+            $order->status = 'Dibatalkan';
+            $order->payment_status = 'Expired';
+            $order->save();
+        }
     }
 
     public function show($id)
@@ -43,6 +70,14 @@ class OrderController extends Controller
             'payment_status' => 'Unpaid'
         ]);
 
+        // Kurangi stok produk
+        foreach ($request->items as $item) {
+            $product = Product::find($item['id']);
+            if ($product) {
+                $product->decrement('stock', $item['quantity'] ?? 1);
+            }
+        }
+
         \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
         \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
         \Midtrans\Config::$isSanitized = env('MIDTRANS_IS_SANITIZED', true);
@@ -58,6 +93,11 @@ class OrderController extends Controller
             'customer_details' => [
                 'first_name' => $user ? $user->name : 'Customer-' . $order->user_id,
                 'email'      => $user ? $user->email : 'nomail@example.com',
+            ],
+            'expiry' => [
+                'start_time' => date("Y-m-d H:i:s O"),
+                'unit' => 'minute',
+                'duration' => 5
             ]
         ];
 

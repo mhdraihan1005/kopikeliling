@@ -13,7 +13,8 @@ export default function AdminUsersPage() {
     name: "",
     email: "",
     password: "",
-    role: "customer"
+    role: "customer",
+    is_active: true
   });
 
   const fetchUsers = async () => {
@@ -40,7 +41,8 @@ export default function AdminUsersPage() {
         name: user.name,
         email: user.email,
         password: "", // empty for edit
-        role: user.role || "customer"
+        role: user.role || "customer",
+        is_active: user.is_active ?? true
       });
       setEditingId(user.id);
     } else {
@@ -48,7 +50,8 @@ export default function AdminUsersPage() {
         name: "",
         email: "",
         password: "",
-        role: "customer"
+        role: "customer",
+        is_active: true
       });
       setEditingId(null);
     }
@@ -105,6 +108,28 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleToggleStatus = async (user: any) => {
+    const newStatus = !user.is_active;
+    const confirmMsg = newStatus 
+      ? `Aktifkan akun ${user.name}?` 
+      : `Nonaktifkan akun ${user.name}?`;
+    
+    if (confirm(confirmMsg)) {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/api/users/${user.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_active: newStatus }),
+        });
+        if (res.ok) {
+          fetchUsers();
+        }
+      } catch (error) {
+        console.error("Error toggling status", error);
+      }
+    }
+  };
+
   return (
     <div className="w-full max-w-5xl mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
@@ -133,6 +158,7 @@ export default function AdminUsersPage() {
                   <th className="p-4 font-bold">Nama</th>
                   <th className="p-4 font-bold">Email</th>
                   <th className="p-4 font-bold">Role</th>
+                  <th className="p-4 font-bold">Status</th>
                   <th className="p-4 font-bold text-center">Aksi</th>
                 </tr>
               </thead>
@@ -153,6 +179,19 @@ export default function AdminUsersPage() {
                       }`}>
                         {user.role || 'customer'}
                       </span>
+                    </td>
+                    <td className="p-4">
+                      <button
+                        onClick={() => handleToggleStatus(user)}
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border transition-all duration-300 ${
+                          user.is_active
+                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20'
+                            : 'bg-rose-500/10 text-rose-500 border-rose-500/30 hover:bg-rose-500/20'
+                        }`}
+                      >
+                        <div className={`w-2 h-2 rounded-full ${user.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                        {user.is_active ? 'Aktif' : 'Nonaktif'}
+                      </button>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-center gap-2">
@@ -244,6 +283,19 @@ export default function AdminUsersPage() {
                   <option value="customer">Customer</option>
                   <option value="admin">Admin</option>
                 </select>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-[#1a1a1a] border border-[#3a3a3a] rounded-xl">
+                <input 
+                  type="checkbox" 
+                  id="is_active"
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
+                  className="w-5 h-5 accent-amber-600 rounded cursor-pointer"
+                />
+                <label htmlFor="is_active" className="text-sm font-bold text-gray-300 cursor-pointer">
+                  Akun Aktif
+                </label>
               </div>
 
               <div className="pt-4 flex gap-3 justify-end">

@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Product;
+use App\Models\ProductImage;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        return response()->json(Product::all());
+        return response()->json(Product::with('images')->get());
     }
 
     public function store(Request $request)
@@ -19,14 +20,29 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
-            'image' => 'nullable|string',
+            'stock' => 'nullable|numeric|min:0',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
             'rating' => 'nullable|numeric',
             'prepTime' => 'nullable|string',
             'category' => 'nullable|string'
         ]);
 
+        $validated['image'] = ''; // Legacy field
+
         $product = Product::create($validated);
-        return response()->json($product, 201);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url' => '/storage/' . $path
+                ]);
+            }
+        }
+
+        return response()->json($product->load('images'), 201);
     }
 
     public function update(Request $request, $id)
@@ -37,14 +53,34 @@ class ProductController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'sometimes|required|numeric',
-            'image' => 'nullable|string',
+            'stock' => 'sometimes|numeric|min:0',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
             'rating' => 'nullable|numeric',
             'prepTime' => 'nullable|string',
             'category' => 'nullable|string'
         ]);
 
         $product->update($validated);
-        return response()->json($product);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url' => '/storage/' . $path
+                ]);
+            }
+        }
+
+        return response()->json($product->load('images'));
+    }
+
+    public function deleteImage($id)
+    {
+        $image = ProductImage::findOrFail($id);
+        $image->delete();
+        return response()->json(['message' => 'Image deleted successfully']);
     }
 
     public function destroy($id)

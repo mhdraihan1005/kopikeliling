@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import CustomerNavbar from "@/components/CustomerNavbar";
 import Footer from "@/components/Footer";
-import { ReceiptText, Clock, CheckCircle2, XCircle, ArrowUpRight } from "lucide-react";
+import { ReceiptText, Clock, CheckCircle2, XCircle, ArrowUpRight, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface OrderItem {
@@ -20,12 +20,64 @@ interface Order {
   payment_status: string;
   items: OrderItem[];
   created_at: string;
+  reviews?: any[];
 }
 
 export default function RiwayatPage() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [reviewModal, setReviewModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{orderId: number, product: OrderItem} | null>(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const handleOpenReview = (orderId: number, product: OrderItem) => {
+    setSelectedItem({ orderId, product });
+    setRating(5);
+    setComment("");
+    setReviewModal(true);
+  };
+
+  const submitReview = async () => {
+    if (!selectedItem) return;
+    setSubmittingReview(true);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: selectedItem.orderId,
+          product_id: selectedItem.product.id,
+          rating,
+          comment
+        })
+      });
+      if (res.ok) {
+        alert("Terima kasih atas ulasan Anda!");
+        setReviewModal(false);
+        // Update local state to hide the button immediately
+        setOrders(prev => prev.map(o => {
+          if (o.id === selectedItem.orderId) {
+            return {
+              ...o,
+              reviews: [...(o.reviews || []), { product_id: selectedItem.product.id }]
+            };
+          }
+          return o;
+        }));
+      } else {
+        const data = await res.json();
+        alert(data.message || "Gagal mengirim ulasan.");
+      }
+    } catch (e) {
+      alert("Terjadi kesalahan.");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -210,8 +262,23 @@ export default function RiwayatPage() {
                               <span className="text-xs text-white/50"><span className="text-amber-500/70 font-bold">{item.qty} item</span> x Rp {item.price.toLocaleString()}</span>
                             </div>
                           </div>
-                          <div className="text-sm font-bold text-white/80">
-                            Rp {(item.qty * item.price).toLocaleString()}
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="text-sm font-bold text-white/80">
+                              Rp {(item.qty * item.price).toLocaleString()}
+                            </div>
+                            {order.status === 'Selesai' && (!order.reviews || !order.reviews.some(r => r.product_id === item.id)) && (
+                              <button 
+                                onClick={() => handleOpenReview(order.id, item)}
+                                className="text-[10px] uppercase font-bold tracking-wider px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-full hover:bg-amber-500 hover:text-black transition-colors"
+                              >
+                                Beri Ulasan
+                              </button>
+                            )}
+                            {order.reviews && order.reviews.some(r => r.product_id === item.id) && (
+                              <span className="text-[10px] uppercase font-bold tracking-wider px-3 py-1 bg-white/5 text-white/40 border border-white/10 rounded-full">
+                                Sudah Diulas
+                              </span>
+                            )}
                           </div>
                         </li>
                       ))}
@@ -224,6 +291,54 @@ export default function RiwayatPage() {
           )}
         </div>
       </main>
+
+      {/* Review Modal */}
+      {reviewModal && selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#111] border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-2">Beri Ulasan</h2>
+            <p className="text-white/60 text-sm mb-6">Bagaimana rasa <span className="text-amber-500 font-bold">{selectedItem.product.name}</span>?</p>
+            
+            <div className="flex justify-center gap-2 mb-6">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button 
+                  key={star} 
+                  onClick={() => setRating(star)}
+                  className="transition-transform hover:scale-110"
+                >
+                  <Star 
+                    size={36} 
+                    className={star <= rating ? "text-amber-500 fill-amber-500" : "text-white/20"} 
+                  />
+                </button>
+              ))}
+            </div>
+
+            <textarea 
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Bagikan pengalaman Anda (opsional)..."
+              className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-white/30 outline-none focus:border-amber-500 transition-colors resize-none h-24 mb-6"
+            />
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setReviewModal(false)}
+                className="flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-colors"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={submitReview}
+                disabled={submittingReview}
+                className="flex-1 py-3 px-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold transition-colors disabled:opacity-50"
+              >
+                {submittingReview ? "Mengirim..." : "Kirim Ulasan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

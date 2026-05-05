@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Coffee, LayoutDashboard, ShoppingBag, List, FileBarChart, LogOut, Settings, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { Coffee, LayoutDashboard, ShoppingBag, List, FileBarChart, LogOut, Settings, Users, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 
@@ -16,6 +16,7 @@ export default function AdminSidebar() {
     { name: "Dashboard", href: "/admin", icon: <LayoutDashboard size={20} /> },
     { name: "Pesanan Masuk", href: "/admin/orders", icon: <ShoppingBag size={20} /> },
     { name: "Manajemen Menu", href: "/admin/menu", icon: <List size={20} /> },
+    { name: "Ulasan Pelanggan", href: "/admin/reviews", icon: <Star size={20} /> },
     { name: "Manajemen User", href: "/admin/users", icon: <Users size={20} /> },
     { name: "Laporan", href: "/admin/reports", icon: <FileBarChart size={20} /> },
     { name: "Pengaturan", href: "/admin/settings", icon: <Settings size={20} /> },
