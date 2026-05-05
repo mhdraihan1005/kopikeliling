@@ -16,15 +16,17 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ordersRes, productsRes] = await Promise.all([
+        const [ordersRes, productsRes, usersRes] = await Promise.all([
           fetch("http://127.0.0.1:8000/api/orders"),
           fetch("http://127.0.0.1:8000/api/products"),
+          fetch("http://127.0.0.1:8000/api/users"),
         ]);
         
         const ordersData = ordersRes.ok ? await ordersRes.json() : [];
         const productsData = productsRes.ok ? await productsRes.json() : [];
+        const usersData = usersRes.ok ? await usersRes.json() : [];
 
-        const revenue = ordersData.filter((o: any) => o.status === 'Selesai').reduce((acc: number, o: any) => acc + o.total_price, 0);
+        const revenue = ordersData.filter((o: any) => o.status === 'Selesai' || o.payment_status === 'Paid').reduce((acc: number, o: any) => acc + Number(o.total_price), 0);
         const pending = ordersData.filter((o: any) => o.status === 'Pending').length;
 
         setStats({
@@ -32,6 +34,7 @@ export default function AdminDashboardPage() {
           totalOrders: ordersData.length,
           totalProducts: productsData.length,
           pendingOrders: pending,
+          totalUsers: usersData.length,
         });
 
         setRecentOrders(ordersData.slice(0, 5));
@@ -93,7 +96,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatSquare 
           title="Total Pendapatan" 
           value={`Rp ${(stats.totalRevenue / 1000).toLocaleString()}K`} 
@@ -107,12 +110,17 @@ export default function AdminDashboardPage() {
           trend="+5%"
         />
         <StatSquare 
-          title="Total Menu Aktif" 
+          title="Total Menu" 
           value={stats.totalProducts.toString()} 
           icon={<Package size={24} />}
         />
         <StatSquare 
-          title="Pesanan Menunggu" 
+          title="Pelanggan" 
+          value={stats.totalUsers?.toString() || "0"} 
+          icon={<Users size={24} />}
+        />
+        <StatSquare 
+          title="Menunggu" 
           value={stats.pendingOrders.toString()} 
           icon={<Clock size={24} />}
         />
