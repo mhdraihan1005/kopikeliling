@@ -1,9 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash, Users } from "lucide-react";
+import { Plus, Edit, Trash, Users as UsersIcon, Shield, User as UserIcon } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function AdminUsersPage() {
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
+  
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -34,6 +38,12 @@ export default function AdminUsersPage() {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const filteredUsers = users.filter(u => 
+    u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.role.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleOpenModal = (user: any = null) => {
     if (user) {
@@ -94,7 +104,7 @@ export default function AdminUsersPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Apakah anda yakin ingin menghapus user ini?")) {
+    if (confirm("Are you sure you want to delete this user?")) {
       try {
         const res = await fetch(`http://127.0.0.1:8000/api/users/${id}`, {
           method: "DELETE",
@@ -111,8 +121,8 @@ export default function AdminUsersPage() {
   const handleToggleStatus = async (user: any) => {
     const newStatus = !user.is_active;
     const confirmMsg = newStatus 
-      ? `Aktifkan akun ${user.name}?` 
-      : `Nonaktifkan akun ${user.name}?`;
+      ? `Activate account for ${user.name}?` 
+      : `Deactivate account for ${user.name}?`;
     
     if (confirm(confirmMsg)) {
       try {
@@ -135,75 +145,81 @@ export default function AdminUsersPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-black text-white flex items-center gap-3">
           <div className="bg-amber-600/20 p-2 rounded-xl">
-            <Users className="text-amber-500" size={32} />
+            <UsersIcon className="text-amber-500" size={32} />
           </div>
-          Manajemen User
+          User Management
         </h1>
         <button 
           onClick={() => handleOpenModal()}
-          className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-amber-600/30 transition-all duration-300 transform hover:scale-105 border border-amber-500/50"
+          className="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-amber-600/30 transition-all border border-amber-500/50"
         >
-          <Plus size={20} /> Tambah User
+          <Plus size={20} /> Add New User
         </button>
       </div>
 
-      <div className="bg-[#2d2d2d] border border-[#3a3a3a] shadow-2xl rounded-2xl overflow-hidden">
+      <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 shadow-2xl rounded-2xl overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-gray-500 font-medium animate-pulse">Memuat data...</div>
+          <div className="p-12 text-center text-zinc-500 font-medium animate-pulse">Fetching users...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#1a1a1a] text-gray-400 text-sm uppercase tracking-wider border-b border-[#3a3a3a]">
-                  <th className="p-4 font-bold">Nama</th>
-                  <th className="p-4 font-bold">Email</th>
-                  <th className="p-4 font-bold">Role</th>
-                  <th className="p-4 font-bold">Status</th>
-                  <th className="p-4 font-bold text-center">Aksi</th>
+                <tr className="bg-white/[0.02] text-zinc-500 text-[11px] uppercase tracking-widest border-b border-white/5">
+                  <th className="p-5 font-black">Identity</th>
+                  <th className="p-5 font-black">Email</th>
+                  <th className="p-5 font-black">Role</th>
+                  <th className="p-5 font-black">Status</th>
+                  <th className="p-5 font-black text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#3a3a3a]">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-[#333333] transition-colors group">
-                    <td className="p-4 font-bold text-white group-hover:text-amber-400 transition-colors">
-                      {user.name}
+              <tbody className="divide-y divide-white/5">
+                {filteredUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="p-5">
+                       <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center border border-white/5 text-amber-500 font-bold">
+                             {user.name.charAt(0)}
+                          </div>
+                          <span className="font-bold text-white group-hover:text-amber-400 transition-colors">{user.name}</span>
+                       </div>
                     </td>
-                    <td className="p-4 text-gray-400">
+                    <td className="p-5 text-zinc-500 text-sm italic">
                       {user.email}
                     </td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                    <td className="p-5">
+                      <span className={`flex items-center w-fit gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                         user.role === 'admin' 
                           ? 'bg-amber-500/10 text-amber-500 border-amber-500/30' 
-                          : 'bg-green-500/10 text-green-500 border-green-500/30'
+                          : 'bg-zinc-800 text-zinc-400 border-white/5'
                       }`}>
+                        {user.role === 'admin' ? <Shield size={10} /> : <UserIcon size={10} />}
                         {user.role || 'customer'}
                       </span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-5">
                       <button
                         onClick={() => handleToggleStatus(user)}
-                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border transition-all duration-300 ${
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-300 ${
                           user.is_active
                             ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20'
                             : 'bg-rose-500/10 text-rose-500 border-rose-500/30 hover:bg-rose-500/20'
                         }`}
                       >
-                        <div className={`w-2 h-2 rounded-full ${user.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                        {user.is_active ? 'Aktif' : 'Nonaktif'}
+                        <div className={`w-1.5 h-1.5 rounded-full ${user.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                        {user.is_active ? 'Active' : 'Disabled'}
                       </button>
                     </td>
-                    <td className="p-4">
+                    <td className="p-5">
                       <div className="flex items-center justify-center gap-2">
                         <button 
                           onClick={() => handleOpenModal(user)}
-                          className="p-2 text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors"
+                          className="p-2 text-zinc-400 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors"
                         >
                           <Edit size={18} />
                         </button>
                         <button 
                           onClick={() => handleDelete(user.id)}
-                          className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                          className="p-2 text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors"
                         >
                           <Trash size={18} />
                         </button>
@@ -211,9 +227,9 @@ export default function AdminUsersPage() {
                     </td>
                   </tr>
                 ))}
-                {users.length === 0 && (
+                {filteredUsers.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="p-8 text-center text-gray-500">Tidak ada data user.</td>
+                    <td colSpan={5} className="p-12 text-center text-zinc-500 italic">No users found matching your search.</td>
                   </tr>
                 )}
               </tbody>
@@ -224,68 +240,68 @@ export default function AdminUsersPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseModal}></div>
-          <div className="relative bg-[#2d2d2d] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-[#3a3a3a]">
-            <div className="p-6 border-b border-[#3a3a3a] flex justify-between items-center bg-[#1a1a1a]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-white/10">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
               <h2 className="text-xl font-black text-white">
-                {editingId ? "Edit User" : "Tambah User"}
+                {editingId ? "Edit User Account" : "Create New User"}
               </h2>
-              <button onClick={handleCloseModal} className="text-gray-400 hover:text-white transition-colors">✕</button>
+              <button onClick={handleCloseModal} className="text-zinc-500 hover:text-white transition-colors">✕</button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1">Nama Lengkap</label>
-                <input 
-                  type="text" 
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
-                  placeholder="John Doe"
-                />
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Full Name</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="w-full p-3 bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-zinc-700 text-sm"
+                    placeholder="e.g. John Doe"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Role</label>
+                  <select 
+                    value={formData.role}
+                    onChange={(e) => setFormData({...formData, role: e.target.value})}
+                    className="w-full p-3 bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all text-sm appearance-none cursor-pointer"
+                  >
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
               </div>
               
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1">Email</label>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Email Address</label>
                 <input 
                   type="email" 
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
+                  className="w-full p-3 bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-zinc-700 text-sm"
                   placeholder="john@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1">
-                  Password {editingId && <span className="text-xs font-normal text-gray-500">(Kosongkan jika tidak ingin mengubah)</span>}
+                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">
+                  Password {editingId && <span className="text-[9px] font-normal lowercase tracking-normal opacity-50">(Leave empty to keep current)</span>}
                 </label>
                 <input 
                   type="password" 
                   required={!editingId}
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
+                  className="w-full p-3 bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-zinc-700 text-sm"
                   placeholder="••••••••"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1">Role</label>
-                <select 
-                  value={formData.role}
-                  onChange={(e) => setFormData({...formData, role: e.target.value})}
-                  className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
-                >
-                  <option value="customer">Customer</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-[#1a1a1a] border border-[#3a3a3a] rounded-xl">
+              <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl">
                 <input 
                   type="checkbox" 
                   id="is_active"
@@ -293,8 +309,8 @@ export default function AdminUsersPage() {
                   onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
                   className="w-5 h-5 accent-amber-600 rounded cursor-pointer"
                 />
-                <label htmlFor="is_active" className="text-sm font-bold text-gray-300 cursor-pointer">
-                  Akun Aktif
+                <label htmlFor="is_active" className="text-xs font-bold text-zinc-400 cursor-pointer">
+                  Account is currently active and can login
                 </label>
               </div>
 
@@ -302,15 +318,15 @@ export default function AdminUsersPage() {
                 <button 
                   type="button" 
                   onClick={handleCloseModal}
-                  className="px-5 py-2.5 text-gray-400 font-bold hover:text-white hover:bg-[#3a3a3a] rounded-xl transition-all"
+                  className="px-6 py-2.5 text-zinc-500 font-bold hover:text-white transition-all text-sm"
                 >
-                  Batal
+                  Cancel
                 </button>
                 <button 
                   type="submit"
-                  className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/30 transition-all border border-amber-500/50"
+                  className="px-8 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-600/30 transition-all border border-amber-500/50 text-sm"
                 >
-                  Simpan
+                  {editingId ? "Update User" : "Create User"}
                 </button>
               </div>
             </form>

@@ -36,10 +36,24 @@ export default function AdminLayout({
           </div>
           
           {/* Footer Navbar */}
-          <footer className="bg-zinc-900/50 px-6 py-6 text-sm text-zinc-400 mt-auto border-t border-zinc-800/50 backdrop-blur-md relative z-10">
-             <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <p>&copy; 2026 E-Coffee Keliling - Admin Dashboard</p>
-                <p>Built with Next.js & Tailwind CSS.</p>
+          <footer className="bg-zinc-950/50 px-8 py-6 text-xs text-zinc-500 mt-auto border-t border-white/5 backdrop-blur-md relative z-10">
+             <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-1">
+                   <p className="font-bold text-zinc-300">KopiKuy! <span className="font-normal text-zinc-500">Management Dashboard</span></p>
+                   <p>&copy; {new Date().getFullYear()} All Rights Reserved.</p>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+                   <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                      <span className="font-medium">System Status: <span className="text-emerald-500">Optimal</span></span>
+                   </div>
+                   <div className="flex items-center gap-6 text-zinc-400">
+                      <a href="#" className="hover:text-amber-500 transition-colors">Documentation</a>
+                      <a href="#" className="hover:text-amber-500 transition-colors">Support</a>
+                      <a href="#" className="hover:text-amber-500 transition-colors">Privacy Policy</a>
+                   </div>
+                </div>
              </div>
           </footer>
         </div>

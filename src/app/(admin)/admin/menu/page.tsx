@@ -2,8 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { Plus, Edit, Trash, Package } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function AdminMenuPage() {
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
+  
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -38,6 +42,12 @@ export default function AdminMenuPage() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    p.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const getImageUrl = (url: string) => {
     if (!url) return '/kopi1.png';
@@ -92,7 +102,7 @@ export default function AdminMenuPage() {
         // Update local form data to remove the image immediately
         setFormData(prev => ({
           ...prev,
-          images: prev.images.filter((img: any) => img.id !== imageId)
+          images: (prev as any).images.filter((img: any) => img.id !== imageId)
         }));
       }
     } catch (error) {
@@ -190,7 +200,7 @@ export default function AdminMenuPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#3a3a3a]">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-[#333333] transition-colors group">
                     <td className="p-4">
                       <div className="flex items-center gap-4">
@@ -234,9 +244,9 @@ export default function AdminMenuPage() {
                     </td>
                   </tr>
                 ))}
-                {products.length === 0 && (
+                {filteredProducts.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="p-8 text-center text-gray-500">Tidak ada data menu.</td>
+                    <td colSpan={5} className="p-8 text-center text-gray-500">Tidak ada data menu yang cocok.</td>
                   </tr>
                 )}
               </tbody>
@@ -353,11 +363,11 @@ export default function AdminMenuPage() {
                   onChange={(e) => setImageFiles(e.target.files ? Array.from(e.target.files) : [])}
                   className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-amber-600 file:text-white hover:file:bg-amber-700 cursor-pointer"
                 />
-                {editingId && formData.images && formData.images.length > 0 && (
+                {editingId && (formData as any).images && (formData as any).images.length > 0 && (
                   <div className="mt-3">
                     <span className="text-xs text-gray-400 block mb-2">Foto Saat Ini (Klik X untuk menghapus):</span>
                     <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                      {formData.images.map((img: any) => (
+                      {(formData as any).images.map((img: any) => (
                         <div key={img.id} className="relative group flex-shrink-0">
                           <img src={getImageUrl(img.image_url)} alt="Current" className="h-16 w-16 object-cover rounded border border-[#3a3a3a]" />
                           <button

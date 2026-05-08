@@ -1,15 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Coffee, LayoutDashboard, ShoppingBag, List, FileBarChart, LogOut, Settings, Users, ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { usePathname } from "next/navigation";
+import { Coffee, LayoutDashboard, ShoppingBag, List, FileBarChart, Settings, Users, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useState } from "react";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navLinks = [
@@ -21,11 +18,6 @@ export default function AdminSidebar() {
     { name: "Reports", href: "/admin/reports", icon: <FileBarChart size={20} /> },
     { name: "Settings", href: "/admin/settings", icon: <Settings size={20} /> },
   ];
-
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
 
   return (
     <aside className={`hidden md:flex transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-72'} bg-zinc-900/80 backdrop-blur-md border-r border-zinc-800 flex-col py-6 z-40 shadow-2xl relative`}>
@@ -61,17 +53,6 @@ export default function AdminSidebar() {
           );
         })}
       </nav>
-      
-      <div className="mt-auto px-4">
-         <button
-            onClick={handleLogout}
-            title={isCollapsed ? "Keluar" : undefined}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-rose-500 font-bold bg-rose-500/10 hover:bg-rose-500/20 rounded-xl transition-all ${isCollapsed ? 'px-0' : ''}`}
-         >
-            <div className="flex-shrink-0"><LogOut size={18} /></div>
-            {!isCollapsed && <span>Logout</span>}
-         </button>
-      </div>
     </aside>
   );
 }
