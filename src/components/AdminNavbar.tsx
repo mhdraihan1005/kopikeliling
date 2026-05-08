@@ -14,9 +14,9 @@ export default function AdminNavbar() {
 
   const navLinks = [
     { name: "Dashboard", href: "/admin" },
-    { name: "Pesanan", href: "/admin/orders" },
+    { name: "Orders", href: "/admin/orders" },
     { name: "Menu", href: "/admin/menu" },
-    { name: "Laporan", href: "/admin/reports" },
+    { name: "Reports", href: "/admin/reports" },
   ];
 
   const handleLogout = () => {
@@ -62,7 +62,7 @@ export default function AdminNavbar() {
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-3 text-sm text-rose-500 hover:bg-zinc-800/80 flex items-center gap-2 font-medium transition-colors"
                   >
-                    <LogOut size={16} /> Keluar
+                    <LogOut size={16} /> Logout
                   </button>
                 </div>
               )}

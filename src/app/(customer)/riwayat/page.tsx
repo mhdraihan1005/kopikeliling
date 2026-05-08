@@ -56,7 +56,7 @@ export default function RiwayatPage() {
         })
       });
       if (res.ok) {
-        alert("Terima kasih atas ulasan Anda!");
+        alert("Thank you for your review!");
         setReviewModal(false);
         // Update local state to hide the button immediately
         setOrders(prev => prev.map(o => {
@@ -70,10 +70,10 @@ export default function RiwayatPage() {
         }));
       } else {
         const data = await res.json();
-        alert(data.message || "Gagal mengirim ulasan.");
+        alert(data.message || "Failed to send review.");
       }
     } catch (e) {
-      alert("Terjadi kesalahan.");
+      alert("An error occurred.");
     } finally {
       setSubmittingReview(false);
     }
@@ -90,7 +90,7 @@ export default function RiwayatPage() {
         const currentUser = JSON.parse(userStr);
         
         const res = await fetch(`http://127.0.0.1:8000/api/orders?user_id=${currentUser.id}`);
-        if (!res.ok) throw new Error("Gagal mengambil riwayat");
+        if (!res.ok) throw new Error("Failed to fetch history");
         
         const data = await res.json();
         setOrders(data);
@@ -109,32 +109,32 @@ export default function RiwayatPage() {
       case 'Selesai':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-sm font-medium">
-            <CheckCircle2 size={14} /> Selesai
+            <CheckCircle2 size={14} /> Completed
           </span>
         );
       case 'Diproses':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-sm font-medium">
-            <Clock size={14} /> Diproses
+            <Clock size={14} /> Processing
           </span>
         );
       case 'Pending':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full text-sm font-medium">
-            <Clock size={14} /> Menunggu
+            <Clock size={14} /> Pending
           </span>
         );
       case 'Dibatalkan':
       case 'Gagal':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-full text-sm font-medium">
-            <XCircle size={14} /> Dibatalkan
+            <XCircle size={14} /> Cancelled
           </span>
         );
       default:
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-neutral-800 text-neutral-400 border border-neutral-700 rounded-full text-sm font-medium">
-            Status Tidak Dikenal
+            Unknown Status
           </span>
         );
     }
@@ -145,25 +145,25 @@ export default function RiwayatPage() {
       case 'Paid':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-sm font-medium">
-            <CheckCircle2 size={14} /> Lunas
+            <CheckCircle2 size={14} /> Paid
           </span>
         );
       case 'Pending':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-full text-sm font-medium">
-            <Clock size={14} /> Belum Dibayar
+            <Clock size={14} /> Unpaid
           </span>
         );
       case 'Failed':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-full text-sm font-medium">
-            <XCircle size={14} /> Gagal
+            <XCircle size={14} /> Failed
           </span>
         );
       default:
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-neutral-800 text-neutral-400 border border-neutral-700 rounded-full text-sm font-medium">
-            Belum Dibayar
+            Unpaid
           </span>
         );
     }
@@ -183,10 +183,10 @@ export default function RiwayatPage() {
             <div>
               <h1 className="text-2xl font-bold text-white mb-2 flex items-center gap-2 tracking-tight">
                 <ReceiptText className="text-amber-500" size={24} />
-                Daftar Riwayat Pesanan
+                Order History List
               </h1>
               <p className="text-white/50 text-sm">
-                Kelola dan pantau semua pembelian kopi Anda sebelumnya.
+                Manage and monitor all your previous coffee purchases.
               </p>
             </div>
           </div>
@@ -195,17 +195,17 @@ export default function RiwayatPage() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 text-neutral-500">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mb-4"></div>
-              <p className="text-sm">Memuat data pesanan...</p>
+              <p className="text-sm">Loading order data...</p>
             </div>
           ) : orders.length === 0 ? (
             <div className="py-20 text-center bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl flex flex-col items-center shadow-2xl">
               <ReceiptText className="text-white/20 mb-4" size={48} />
-              <h2 className="text-xl font-bold text-white mb-2">Belum Ada Transaksi</h2>
+              <h2 className="text-xl font-bold text-white mb-2">No Transactions Yet</h2>
               <p className="text-white/50 mb-6 max-w-sm">
-                Sepertinya Anda belum membuat pesanan sama sekali. 
+                It seems you haven't made any orders yet. 
               </p>
               <a href="/menu" className="text-sm px-6 py-2.5 bg-amber-500 text-black font-bold rounded-lg hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20">
-                Pesan Kopi
+                Order Coffee
               </a>
             </div>
           ) : (
@@ -217,23 +217,23 @@ export default function RiwayatPage() {
                   <div className="px-5 py-4 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/[0.02]">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
                       <div>
-                        <p className="text-xs text-white/40 mb-1">Tanggal Transaksi</p>
+                        <p className="text-xs text-white/40 mb-1">Transaction Date</p>
                         <p className="text-sm text-white/90 font-medium whitespace-nowrap">
-                          {new Date(order.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          {new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-white/40 mb-1">Total Belanja</p>
+                        <p className="text-xs text-white/40 mb-1">Total Spending</p>
                         <p className="text-sm text-amber-400 font-bold whitespace-nowrap">
                           Rp {order.total_price.toLocaleString()}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-white/40 mb-1">Status Pembayaran</p>
+                        <p className="text-xs text-white/40 mb-1">Payment Status</p>
                         {getPaymentBadge(order.payment_status)}
                       </div>
                       <div>
-                        <p className="text-xs text-white/40 mb-1">Status Pesanan</p>
+                        <p className="text-xs text-white/40 mb-1">Order Status</p>
                         {getStatusBadge(order.status)}
                       </div>
                     </div>
@@ -241,7 +241,7 @@ export default function RiwayatPage() {
                     <div className="flex items-center sm:justify-end text-white/40">
                       {order.status === 'Selesai' && (
                         <a href={`/invoice/${order.id}`} target="_blank" className="text-xs mr-4 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded-md transition-colors flex items-center gap-1.5">
-                          <ReceiptText size={14} /> Cetak Struk
+                          <ReceiptText size={14} /> Print Receipt
                         </a>
                       )}
                       <span className="text-xs font-mono font-medium tracking-wider">#{order.id.toString().padStart(6, '0')}</span>
@@ -259,7 +259,7 @@ export default function RiwayatPage() {
                             </div>
                             <div className="flex flex-col">
                               <span className="text-sm font-bold text-white/90">{item.name}</span>
-                              <span className="text-xs text-white/50"><span className="text-amber-500/70 font-bold">{item.qty} item</span> x Rp {item.price.toLocaleString()}</span>
+                              <span className="text-xs text-white/50"><span className="text-amber-500/70 font-bold">{item.qty} items</span> x Rp {item.price.toLocaleString()}</span>
                             </div>
                           </div>
                           <div className="flex flex-col items-end gap-2">
@@ -271,12 +271,12 @@ export default function RiwayatPage() {
                                 onClick={() => handleOpenReview(order.id, item)}
                                 className="text-[10px] uppercase font-bold tracking-wider px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-full hover:bg-amber-500 hover:text-black transition-colors"
                               >
-                                Beri Ulasan
+                                Review Product
                               </button>
                             )}
                             {order.reviews && order.reviews.some(r => r.product_id === item.id) && (
                               <span className="text-[10px] uppercase font-bold tracking-wider px-3 py-1 bg-white/5 text-white/40 border border-white/10 rounded-full">
-                                Sudah Diulas
+                                Reviewed
                               </span>
                             )}
                           </div>
@@ -296,8 +296,8 @@ export default function RiwayatPage() {
       {reviewModal && selectedItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#111] border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-2">Beri Ulasan</h2>
-            <p className="text-white/60 text-sm mb-6">Bagaimana rasa <span className="text-amber-500 font-bold">{selectedItem.product.name}</span>?</p>
+            <h2 className="text-xl font-bold text-white mb-2">Write a Review</h2>
+            <p className="text-white/60 text-sm mb-6">How was the taste of <span className="text-amber-500 font-bold">{selectedItem.product.name}</span>?</p>
             
             <div className="flex justify-center gap-2 mb-6">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -317,7 +317,7 @@ export default function RiwayatPage() {
             <textarea 
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Bagikan pengalaman Anda (opsional)..."
+              placeholder="Share your experience (optional)..."
               className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-white/30 outline-none focus:border-amber-500 transition-colors resize-none h-24 mb-6"
             />
 
@@ -326,14 +326,14 @@ export default function RiwayatPage() {
                 onClick={() => setReviewModal(false)}
                 className="flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-colors"
               >
-                Batal
+                Cancel
               </button>
               <button 
                 onClick={submitReview}
                 disabled={submittingReview}
                 className="flex-1 py-3 px-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold transition-colors disabled:opacity-50"
               >
-                {submittingReview ? "Mengirim..." : "Kirim Ulasan"}
+                {submittingReview ? "Sending..." : "Submit Review"}
               </button>
             </div>
           </div>

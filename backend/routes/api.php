@@ -8,6 +8,10 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SettingController;
+
+Route::get('/settings', [SettingController::class, 'index']);
+Route::post('/settings', [SettingController::class, 'update']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function AiBarista() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Halo! Saya AiCino, Asisten Barista cerdas Anda. Bingung mau pesan kopi apa hari ini? Ceritakan suasana hati Anda, atau cuaca di sana!" }
+    { role: "assistant", content: "Hello! I'm AiCino, your smart Barista Assistant. Not sure what to order today? Tell me about your mood, or the weather outside!" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -44,11 +44,11 @@ export default function AiBarista() {
       if (response.ok) {
         setMessages(prev => [...prev, { role: "assistant", content: data.message }]);
       } else {
-        setMessages(prev => [...prev, { role: "assistant", content: data.message || "Maaf, terjadi kesalahan saat menghubungi server." }]);
+        setMessages(prev => [...prev, { role: "assistant", content: data.message || "Sorry, an error occurred while contacting the server." }]);
       }
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages(prev => [...prev, { role: "assistant", content: "Maaf, koneksi terputus. Silakan coba lagi." }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "Sorry, connection lost. Please try again." }]);
     } finally {
       setIsLoading(false);
     }
@@ -115,7 +115,7 @@ export default function AiBarista() {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
                   <div className="bg-zinc-800/90 px-4 py-3 rounded-2xl rounded-tl-sm border border-zinc-700/50 flex items-center gap-2.5">
                     <Loader2 size={14} className="text-amber-500 animate-spin" />
-                    <span className="text-zinc-400 text-[13px] animate-pulse">Sedang menganalisa preferensi menu...</span>
+                    <span className="text-zinc-400 text-[13px] animate-pulse">Analyzing menu preferences...</span>
                   </div>
                 </motion.div>
               )}
@@ -129,7 +129,7 @@ export default function AiBarista() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ceritakan harimu atau keinginganmu..."
+                  placeholder="Tell me about your day or cravings..."
                   className="w-full bg-zinc-900 border border-zinc-700 focus:border-amber-500 text-white text-sm rounded-full pl-4 pr-12 py-3.5 outline-none focus:ring-1 focus:ring-amber-500/50 transition-all placeholder:text-zinc-500"
                 />
                 <button 
@@ -145,7 +145,7 @@ export default function AiBarista() {
         )}
       </AnimatePresence>
 
-      {/* Floating Button Menu Pemicu */}
+      {/* Floating Button Menu Trigger */}
       <motion.button
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}

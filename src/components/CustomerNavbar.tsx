@@ -28,9 +28,9 @@ export default function CustomerNavbar() {
   };
 
   const navLinks = [
-    { name: "Beranda", href: "/" },
+    { name: "Home", href: "/" },
     { name: "Menu", href: "/menu" },
-    { name: "Pesanan", href: "/riwayat" },
+    { name: "My Orders", href: "/riwayat" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -40,10 +40,10 @@ export default function CustomerNavbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
 
         {/* Logo */}
-        <div className="flex items-center gap-2 font-bold text-white">
-          <Coffee size={20} className="text-white" />
-          <span className="tracking-tight hidden sm:block">E-Coffee Keliling</span>
-          <span className="tracking-tight sm:hidden">E-Coffee</span>
+        <div className="flex items-center gap-2 font-bold text-white text-xl">
+          <Coffee size={24} className="text-amber-500" />
+          <span className="tracking-tight hidden sm:block">Kopi<span className="text-amber-500">Kuy!</span></span>
+          <span className="tracking-tight sm:hidden text-amber-500">Kuy!</span>
         </div>
 
         {/* Desktop Menu */}
@@ -154,7 +154,7 @@ export default function CustomerNavbar() {
           {user ? (
             <div className="flex flex-col gap-2">
               <div className="px-4 py-2 text-white">
-                <div className="font-medium text-sm">Masuk sebagai: {user.name}</div>
+                <div className="font-medium text-sm">Logged in as: {user.name}</div>
               </div>
               <button
                 onClick={() => {
@@ -173,7 +173,7 @@ export default function CustomerNavbar() {
               onClick={() => setIsMobileMenuOpen(false)}
               className="rounded-lg px-4 py-2.5 font-bold text-black bg-amber-500 text-center transition-all mt-2"
             >
-              Login / Daftar
+              Login / Register
             </Link>
           )}
         </div>

@@ -14,12 +14,12 @@ export default function AdminSidebar() {
 
   const navLinks = [
     { name: "Dashboard", href: "/admin", icon: <LayoutDashboard size={20} /> },
-    { name: "Pesanan Masuk", href: "/admin/orders", icon: <ShoppingBag size={20} /> },
-    { name: "Manajemen Menu", href: "/admin/menu", icon: <List size={20} /> },
-    { name: "Ulasan Pelanggan", href: "/admin/reviews", icon: <Star size={20} /> },
-    { name: "Manajemen User", href: "/admin/users", icon: <Users size={20} /> },
-    { name: "Laporan", href: "/admin/reports", icon: <FileBarChart size={20} /> },
-    { name: "Pengaturan", href: "/admin/settings", icon: <Settings size={20} /> },
+    { name: "Incoming Orders", href: "/admin/orders", icon: <ShoppingBag size={20} /> },
+    { name: "Menu Management", href: "/admin/menu", icon: <List size={20} /> },
+    { name: "Customer Reviews", href: "/admin/reviews", icon: <Star size={20} /> },
+    { name: "User Management", href: "/admin/users", icon: <Users size={20} /> },
+    { name: "Reports", href: "/admin/reports", icon: <FileBarChart size={20} /> },
+    { name: "Settings", href: "/admin/settings", icon: <Settings size={20} /> },
   ];
 
   const handleLogout = () => {
@@ -39,7 +39,7 @@ export default function AdminSidebar() {
 
       <div className={`px-6 mb-8 flex flex-col gap-1 transition-all duration-300 ${isCollapsed ? 'opacity-0 h-0 overflow-hidden m-0 p-0' : 'opacity-100'}`}>
         <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Admin Panel</h2>
-        <p className="text-sm text-zinc-400">Kelola operasional Anda</p>
+        <p className="text-sm text-zinc-400">Manage your operations</p>
       </div>
       <nav className="flex flex-col gap-2 px-4">
         {navLinks.map((link) => {
@@ -69,7 +69,7 @@ export default function AdminSidebar() {
             className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-rose-500 font-bold bg-rose-500/10 hover:bg-rose-500/20 rounded-xl transition-all ${isCollapsed ? 'px-0' : ''}`}
          >
             <div className="flex-shrink-0"><LogOut size={18} /></div>
-            {!isCollapsed && <span>Keluar</span>}
+            {!isCollapsed && <span>Logout</span>}
          </button>
       </div>
     </aside>

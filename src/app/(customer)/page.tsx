@@ -19,35 +19,35 @@ export default function Home() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 border border-white/20 backdrop-blur-md mb-8">
             <ShieldCheck size={16} className="text-amber-400" />
-            <span className="text-white/80 text-sm font-semibold tracking-wider uppercase">Standar Kualitas Kafe Bintang 5</span>
+            <span className="text-white/80 text-sm font-semibold tracking-wider uppercase">5-Star Cafe Quality Standards</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
-            Kopi Skala Premium, <br className="hidden md:block" />
-            <span className="text-amber-400 font-serif italic text-5xl md:text-6xl lg:text-8xl">Langsung Untuk Anda.</span>
+            Premium Scale Coffee, <br className="hidden md:block" />
+            <span className="text-amber-400 font-serif italic text-5xl md:text-6xl lg:text-8xl">Straight To You.</span>
           </h1>
           
           <p className="text-lg md:text-xl text-white/70 mb-12 max-w-3xl leading-relaxed">
-            Menyatukan tradisi biji kopi pilihan dengan sistem pemesanan modern. 
-            Platform E-Coffee Keliling kami siap menyajikan keunggulan cita rasa di setiap tegukan, di mana pun Anda berada.
+            Uniting the tradition of selected coffee beans with a modern ordering system. 
+            Our KopiKuy platform is ready to serve excellence in every sip, wherever you are.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 mb-24 w-full sm:w-auto">
             <Link href="/menu" className="flex items-center justify-center gap-3 bg-amber-500 hover:bg-amber-600 text-black px-8 py-3.5 rounded font-semibold text-lg transition-all duration-300">
-              Pesan Sekarang
+              Order Now
               <ArrowRight size={20} />
             </Link>
             <Link href="#features" className="flex items-center justify-center gap-3 bg-transparent hover:bg-white/10 border border-white/30 text-white px-8 py-3.5 rounded font-semibold text-lg transition-all duration-300">
-              Lebih Lanjut
+              Learn More
             </Link>
           </div>
 
           {/* Feature Cards Showcase - Clean Minimalist Glass */}
           <div id="features" className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-left">
             {[
-              { icon: <Coffee strokeWidth={1.5} size={32} />, label: "Kurasi Biji Kopi", desc: "Kami hanya menyajikan varian menu dari kopi premium yang telah disortir dan dinilai kelayakannya oleh para ahli." },
-              { icon: <Tablet strokeWidth={1.5} size={32} />, label: "Integrasi Sistem", desc: "Didukung oleh teknologi pemesanan modern yang mencatat secara akurat histori pembelian dan keamanan pembayaran Anda." },
-              { icon: <BarChart2 strokeWidth={1.5} size={32} />, label: "Kepastian Harga", desc: "Investasi cita rasa kopi sebanding dengan kualitas, dengan model harga yang transparan tanpa biaya tersembunyi." },
+              { icon: <Coffee strokeWidth={1.5} size={32} />, label: "Curated Beans", desc: "We only serve menu variants from premium coffee that has been sorted and graded by experts." },
+              { icon: <Tablet strokeWidth={1.5} size={32} />, label: "System Integration", desc: "Powered by modern ordering technology that accurately records purchase history and payment security." },
+              { icon: <BarChart2 strokeWidth={1.5} size={32} />, label: "Price Certainty", desc: "Coffee investment is proportional to quality, with a transparent pricing model and no hidden fees." },
             ].map((item, i) => (
               <div
                 key={i}

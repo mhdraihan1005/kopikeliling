@@ -22,7 +22,7 @@ async function fetchMenuItems(): Promise<MenuItem[]> {
   try {
     const response = await fetch('http://127.0.0.1:8000/api/products');
     if (!response.ok) {
-      throw new Error('Gagal mengambil data dari server');
+      throw new Error('Failed to fetch data from server');
     }
     const data = await response.json();
     return data;
@@ -35,7 +35,7 @@ async function fetchMenuItems(): Promise<MenuItem[]> {
 export default function MenuPage() {
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const { addToCart } = useCart();
 
@@ -54,7 +54,7 @@ export default function MenuPage() {
   }, []);
 
   const filteredMenu = menuData.filter((item) => {
-    const matchesCategory = selectedCategory === "Semua" || item.category === selectedCategory;
+    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           item.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -74,16 +74,16 @@ export default function MenuPage() {
       <main className="flex-1 relative">
 
 
-        {/* Konten Utama */}
+        {/* Main Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 lg:py-24">
           
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight">
-              Eksplorasi <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">Sajian Kopi</span> Kami
+              Explore Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">Coffee Selection</span>
             </h1>
             <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-              Temukan profil rasa favorit Anda dari kurasi biji kopi pilihan.
-              Setiap cangkir diracik presisi oleh barista profesional.
+              Find your favorite flavor profile from our curated coffee beans.
+              Every cup is precisely crafted by professional baristas.
             </p>
           </div>
 
@@ -92,19 +92,19 @@ export default function MenuPage() {
               <div className="relative w-16 h-16">
                 <Spinner className="absolute inset-0 text-amber-500 animate-spin" />
               </div>
-              <p className="text-white/70 font-medium tracking-wider animate-pulse">Menyeduh data menu...</p>
+              <p className="text-white/70 font-medium tracking-wider animate-pulse">Brewing menu data...</p>
             </div>
           ) : (
             <div className="flex flex-col gap-10 pb-16">
 
-              {/* Pencarian */}
+              {/* Search */}
               <div className="max-w-xl mx-auto w-full relative group">
                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                   <Search size={20} className="text-white/40 group-focus-within:text-amber-500 transition-colors" />
                 </div>
                 <input
                   type="text"
-                  placeholder="Cari kopi, seperti 'Cold Brew' atau 'Latte'..."
+                  placeholder="Search coffee, e.g. 'Cold Brew' or 'Latte'..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-white/5 border border-white/20 focus:border-amber-500 rounded-full py-4 pl-14 pr-6 text-white placeholder:text-white/40 outline-none backdrop-blur-md focus:shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:bg-white/10 transition-all duration-300"
@@ -113,7 +113,7 @@ export default function MenuPage() {
               
               {/* Category Filter Pills */}
               <div className="flex justify-center gap-3 flex-wrap">
-                {["Semua", "Hot Coffee", "Cold Coffee", "Specialty"].map((category) => (
+                {["All", "Hot Coffee", "Cold Coffee", "Specialty"].map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
@@ -138,21 +138,21 @@ export default function MenuPage() {
               {/* Informational Section */}
               <div className="mt-8 rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl p-8 lg:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
                 <div className="text-center md:text-left">
-                  <h3 className="text-2xl font-bold text-white mb-2">Komitmen Layanan Kami</h3>
-                  <p className="text-white/60">Kami memastikan kualitas premium di setiap tahap pemrosesan kopi Anda.</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">Our Service Commitment</h3>
+                  <p className="text-white/60">We ensure premium quality at every stage of your coffee processing.</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-6 text-white/80">
                   <div className="flex items-center gap-3">
                     <CheckCircle2 size={20} className="text-amber-500" />
-                    <span className="font-medium text-sm">Biji Kopi Terkurasi</span>
+                    <span className="font-medium text-sm">Curated Beans</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle2 size={20} className="text-amber-500" />
-                    <span className="font-medium text-sm">Barista Tersertifikasi</span>
+                    <span className="font-medium text-sm">Certified Baristas</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle2 size={20} className="text-amber-500" />
-                    <span className="font-medium text-sm">Pelayanan Tepat Waktu</span>
+                    <span className="font-medium text-sm">Timely Service</span>
                   </div>
                 </div>
               </div>
@@ -207,7 +207,7 @@ function MenuCard({ item, addToCart, getImageUrl }: { item: MenuItem, addToCart:
         </div>
         <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 z-20">
            <span className={`text-[10px] font-black uppercase tracking-widest ${item.stock > 0 ? 'text-amber-500' : 'text-red-500'}`}>
-             {item.stock > 0 ? `Stok: ${item.stock}` : 'Habis'}
+             {item.stock > 0 ? `Stock: ${item.stock}` : 'Sold Out'}
            </span>
         </div>
         <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 z-20">
@@ -246,7 +246,7 @@ function MenuCard({ item, addToCart, getImageUrl }: { item: MenuItem, addToCart:
         
         <div className="flex justify-between items-end pt-4 border-t border-white/5">
           <div className="flex flex-col">
-            <span className="text-white/40 text-xs font-medium mb-1">Harga</span>
+            <span className="text-white/40 text-xs font-medium mb-1">Price</span>
             <span className="text-2xl font-black text-amber-500 drop-shadow-sm">
               Rp {item.price.toLocaleString()}
             </span>
@@ -260,7 +260,7 @@ function MenuCard({ item, addToCart, getImageUrl }: { item: MenuItem, addToCart:
                 : "bg-white/10 text-white/30 cursor-not-allowed"
             }`}
           >
-            {item.stock > 0 ? "Pesan" : "Habis"}
+            {item.stock > 0 ? "Order" : "Sold Out"}
           </button>
         </div>
       </div>

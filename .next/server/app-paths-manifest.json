@@ -1,9 +1,8 @@
 {
+  "/(customer)/page": "app/(customer)/page.js",
   "/(customer)/riwayat/page": "app/(customer)/riwayat/page.js",
-  "/(admin)/admin/orders/page": "app/(admin)/admin/orders/page.js",
-  "/(admin)/admin/reports/page": "app/(admin)/admin/reports/page.js",
-  "/(admin)/admin/reviews/page": "app/(admin)/admin/reviews/page.js",
-  "/(admin)/admin/menu/page": "app/(admin)/admin/menu/page.js",
+  "/(customer)/menu/page": "app/(customer)/menu/page.js",
+  "/login/page": "app/login/page.js",
   "/(admin)/admin/page": "app/(admin)/admin/page.js",
-  "/(admin)/admin/users/page": "app/(admin)/admin/users/page.js"
+  "/(admin)/admin/orders/page": "app/(admin)/admin/orders/page.js"
 }

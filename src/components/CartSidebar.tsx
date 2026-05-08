@@ -23,7 +23,7 @@ export default function CartSidebar({
       setIsCheckingOut(true);
       const userStr = localStorage.getItem('user');
       if (!userStr) {
-        toast.error("Anda harus login untuk melakukan pesanan!");
+        toast.error("You must be logged in to place an order!");
         setIsCheckingOut(false);
         return;
       }
@@ -58,25 +58,25 @@ export default function CartSidebar({
             } catch (e) {
               console.error('Failed to update status', e);
             }
-            toast.success("Pembayaran Berhasil! Pesanan sedang diproses.");
+            toast.success("Payment Successful! Order is being processed.");
             cart.forEach((item: any) => removeFromCart(item.id));
             setTimeout(() => {
               window.location.href = '/riwayat';
             }, 1000);
           },
           onPending: function (result: any) {
-            toast.success("Menunggu pembayaran Anda!");
+            toast.success("Waiting for your payment!");
             cart.forEach((item: any) => removeFromCart(item.id));
             setTimeout(() => {
               window.location.href = '/riwayat';
             }, 1000);
           },
           onError: function (result: any) {
-            toast.error("Pembayaran Gagal!");
+            toast.error("Payment Failed!");
             setIsCheckingOut(false);
           },
           onClose: function () {
-            toast.error("Anda belum menyelesaikan pembayaran");
+            toast.error("You have not completed the payment");
             setIsCheckingOut(false);
             cart.forEach((item: any) => removeFromCart(item.id)); // also empty since order already created in DB
             setTimeout(() => {
@@ -85,14 +85,14 @@ export default function CartSidebar({
           }
         });
       } else {
-        toast.success("Checkout Berhasil! Pesanan sedang diproses.");
+        toast.success("Checkout Successful! Order is being processed.");
         setTimeout(() => {
           window.location.href = '/riwayat';
         }, 1000);
       }
 
     } catch (err) {
-      toast.error("Terjadi kesalahan saat memproses pesanan.");
+      toast.error("An error occurred while processing the order.");
     } finally {
       setIsCheckingOut(false);
     }
@@ -116,9 +116,9 @@ export default function CartSidebar({
       >
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            Keranjang Saya
+            My Cart
             <span className="bg-amber-100 text-amber-600 text-xs py-0.5 px-2 rounded-full">
-              {totalItems} item
+              {totalItems} items
             </span>
           </h2>
           <button
@@ -135,9 +135,9 @@ export default function CartSidebar({
               <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center">
                 <Trash2 size={40} className="text-gray-300" />
               </div>
-              <p className="text-lg font-medium">Keranjang masih kosong</p>
+              <p className="text-lg font-medium">Cart is empty</p>
               <button onClick={onClose} className="mt-2 text-amber-600 hover:underline">
-                Ayo pesan kopi sekarang!
+                Let's order some coffee now!
               </button>
             </div>
           ) : (
@@ -159,7 +159,7 @@ export default function CartSidebar({
                         <button onClick={() => updateQty(item.id, 1)} className="text-gray-400 hover:text-amber-600"><Plus size={14}/></button>
                       </div>
                       <button onClick={() => removeFromCart(item.id)} className="text-xs text-red-500 hover:underline ml-auto font-medium">
-                        Hapus
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -172,7 +172,7 @@ export default function CartSidebar({
         {cart.length > 0 && (
           <div className="p-5 border-t border-gray-100 bg-white">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-gray-500 font-medium">Total Pembayaran</span>
+              <span className="text-gray-500 font-medium">Total Payment</span>
               <span className="text-2xl font-black text-gray-800">Rp {totalPrice.toLocaleString()}</span>
             </div>
             <button 
@@ -180,7 +180,7 @@ export default function CartSidebar({
               disabled={isCheckingOut}
               className="w-full bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-bold py-4 rounded-xl shadow-lg shadow-amber-600/20 transition-all hover:-translate-y-0.5 active:translate-y-0"
             >
-              {isCheckingOut ? "Memproses..." : "Lanjut ke Pembayaran"}
+              {isCheckingOut ? "Processing..." : "Continue to Payment"}
             </button>
           </div>
         )}
