@@ -1,4 +1,8 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/(customer)/riwayat/page": "app/(customer)/riwayat/page.js"
+  "/login/page": "app/login/page.js",
+  "/(customer)/page": "app/(customer)/page.js",
+  "/(customer)/riwayat/page": "app/(customer)/riwayat/page.js",
+  "/(customer)/menu/page": "app/(customer)/menu/page.js",
+  "/api/chat/route": "app/api/chat/route.js",
+  "/(admin)/admin/page": "app/(admin)/admin/page.js"
 }

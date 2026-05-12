@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash, Users as UsersIcon, Shield, User as UserIcon } from "lucide-react";
+import { Plus, Edit, Trash, Users as UsersIcon, Shield, User as UserIcon, ChevronDown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 export default function AdminUsersPage() {
@@ -264,14 +264,19 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Role</label>
-                  <select 
-                    value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value})}
-                    className="w-full p-3 bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all text-sm appearance-none cursor-pointer"
-                  >
-                    <option value="customer">Customer</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                   <div className="relative">
+                    <select 
+                      value={formData.role}
+                      onChange={(e) => setFormData({...formData, role: e.target.value})}
+                      className="w-full p-3 bg-zinc-800 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all text-sm appearance-none cursor-pointer pr-10"
+                    >
+                      <option value="customer" className="bg-zinc-900 text-white">Customer</option>
+                      <option value="admin" className="bg-zinc-900 text-white">Admin</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
                 </div>
               </div>
               

@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { BotMessageSquare, Sparkles, Send, X, Coffee, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePathname } from "next/navigation";
 
 export default function AiBarista() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +14,12 @@ export default function AiBarista() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const { user } = useAuth();
+  const pathname = usePathname();
+
+  // Only show for customers (not admin) and only when logged in
+  const isVisible = !!user && !pathname.startsWith('/admin');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,6 +61,8 @@ export default function AiBarista() {
       setIsLoading(false);
     }
   };
+
+  if (!isVisible) return null;
 
   return (
     <>

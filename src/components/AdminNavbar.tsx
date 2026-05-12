@@ -18,8 +18,24 @@ export default function AdminNavbar() {
   const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [seenOrderIds, setSeenOrderIds] = useState<number[]>([]);
+  const seenOrderIdsRef = useRef<number[]>([]);
   
   const lastOrderCount = useRef(0);
+
+  // Load seen IDs from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("seen_orders");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setSeenOrderIds(parsed);
+        seenOrderIdsRef.current = parsed;
+      } catch (e) {
+        console.error("Failed to parse seen_orders", e);
+      }
+    }
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -32,8 +48,11 @@ export default function AdminNavbar() {
       const res = await fetch("http://127.0.0.1:8000/api/orders");
       if (res.ok) {
         const allOrders = await res.json();
-        // Filter for Pending orders (new orders)
-        const newOrders = allOrders.filter((o: any) => o.status === "Pending").slice(0, 5);
+        // Filter for Pending orders (new orders) AND not seen yet
+        const newOrders = allOrders
+          .filter((o: any) => o.status === "Pending" && !seenOrderIdsRef.current.includes(o.id))
+          .slice(0, 5);
+          
         setNotifications(newOrders);
         setUnreadCount(newOrders.length);
 
@@ -52,6 +71,17 @@ export default function AdminNavbar() {
     } catch (error) {
       console.error("Failed to fetch notifications", error);
     }
+  };
+
+  const markAsSeen = (id: number) => {
+    const updatedSeen = [...seenOrderIds, id].slice(-100); // Keep last 100
+    setSeenOrderIds(updatedSeen);
+    seenOrderIdsRef.current = updatedSeen;
+    localStorage.setItem("seen_orders", JSON.stringify(updatedSeen));
+    
+    // Update local notifications immediately to hide it
+    setNotifications(prev => prev.filter(n => n.id !== id));
+    setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
   // Initial fetch and polling every 30 seconds
@@ -135,7 +165,11 @@ export default function AdminNavbar() {
                     notifications.map((notif) => (
                       <div 
                         key={notif.id} 
-                        onClick={() => { router.push('/admin/orders'); setShowNotifMenu(false); }}
+                        onClick={() => { 
+                          markAsSeen(notif.id);
+                          router.push('/admin/orders'); 
+                          setShowNotifMenu(false); 
+                        }}
                         className="px-5 py-4 border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors group"
                       >
                         <div className="flex items-start gap-4">
