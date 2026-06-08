@@ -3,6 +3,7 @@
 import { Coffee, Tablet, BarChart2, ArrowRight, ShieldCheck } from 'lucide-react';
 import CustomerNavbar from "@/components/CustomerNavbar";
 import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
 import Link from 'next/link';
 
 export default function Home() {
@@ -11,10 +12,9 @@ export default function Home() {
       <CustomerNavbar />
 
       <main className="flex-1 relative flex flex-col items-center justify-center px-6 py-20 lg:py-32 overflow-hidden">
-
-
-        {/* Content Container */}
-        <div className="relative z-10 flex flex-col items-center text-center max-w-6xl mx-auto w-full">
+        <PageTransition variant="slideUp">
+          {/* Content Container */}
+          <div className="relative z-10 flex flex-col items-center text-center max-w-6xl mx-auto w-full">
           
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 border border-white/20 backdrop-blur-md mb-8">
@@ -62,6 +62,7 @@ export default function Home() {
             ))}
           </div>
         </div>
+        </PageTransition>
       </main>
 
       <Footer />

@@ -48,7 +48,7 @@ export default function RegisterPage() {
           <div className="w-12 h-12 bg-amber-600/20 backdrop-blur-sm border border-amber-500/50 rounded-xl flex items-center justify-center">
             <Coffee size={24} className="text-amber-500" />
           </div>
-          <span className="text-xl font-bold text-white tracking-widest uppercase">E-Coffee</span>
+          <span className="text-xl font-bold text-white tracking-widest uppercase">KopiKuy</span>
         </div>
 
         <div className="relative z-10 max-w-lg mb-12">

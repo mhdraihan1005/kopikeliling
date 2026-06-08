@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import CustomerNavbar from "@/components/CustomerNavbar";
 import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
 import { ReceiptText, Clock, CheckCircle2, XCircle, ArrowUpRight, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -174,9 +175,8 @@ export default function RiwayatPage() {
       <CustomerNavbar />
 
       <main className="flex-1 relative w-full">
-
-
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-10 lg:py-16">
+        <PageTransition variant="slideUp">
+          <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-10 lg:py-16">
           
           {/* Simple Page Header */}
           <div className="border-b border-white/10 pb-6 mb-8 flex items-center justify-between">
@@ -202,7 +202,7 @@ export default function RiwayatPage() {
               <ReceiptText className="text-white/20 mb-4" size={48} />
               <h2 className="text-xl font-bold text-white mb-2">No Transactions Yet</h2>
               <p className="text-white/50 mb-6 max-w-sm">
-                It seems you haven't made any orders yet. 
+                It seems you haven&apos;t made any orders yet. 
               </p>
               <a href="/menu" className="text-sm px-6 py-2.5 bg-amber-500 text-black font-bold rounded-lg hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20">
                 Order Coffee
@@ -290,6 +290,7 @@ export default function RiwayatPage() {
             </div>
           )}
         </div>
+        </PageTransition>
       </main>
 
       {/* Review Modal */}

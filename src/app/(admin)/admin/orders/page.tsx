@@ -52,7 +52,10 @@ export default function AdminOrdersPage() {
     o.id.toString().includes(searchQuery) || 
     o.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
     o.payment_status?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (o.user?.name && o.user.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    (o.user?.name && o.user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (o.guest_name && o.guest_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (o.fulfillment_type && o.fulfillment_type.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (o.table_number && o.table_number.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const getStatusColor = (status: string) => {
@@ -102,7 +105,9 @@ export default function AdminOrdersPage() {
               <thead>
                 <tr className="bg-white/[0.02] text-zinc-500 text-[11px] uppercase tracking-widest border-b border-white/5">
                   <th className="p-5 font-black">Order ID</th>
+                  <th className="p-5 font-black">Customer</th>
                   <th className="p-5 font-black">Date</th>
+                  <th className="p-5 font-black">Service</th>
                   <th className="p-5 font-black">Amount</th>
                   <th className="p-5 font-black">Payment</th>
                   <th className="p-5 font-black">Status</th>
@@ -119,8 +124,33 @@ export default function AdminOrdersPage() {
                       <td className="p-5 font-bold text-white group-hover:text-amber-500 transition-colors">
                         #ORD-{order.id.toString().padStart(4, '0')}
                       </td>
+                      <td className="p-5 text-white text-sm">
+                        {order.user?.name ? (
+                          <div className="flex flex-col">
+                            <span className="font-semibold">{order.user.name}</span>
+                            <span className="text-[9px] text-amber-500 font-bold uppercase tracking-wider">Member</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col">
+                            <span className="font-semibold">{order.guest_name || 'Guest'}</span>
+                            <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Guest</span>
+                          </div>
+                        )}
+                      </td>
                       <td className="p-5 text-zinc-500 text-sm">
                         {formattedDate}
+                      </td>
+                      <td className="p-5 text-zinc-300 text-sm">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-amber-500 text-xs uppercase tracking-wider">
+                            {order.fulfillment_type || 'Dine In'}
+                          </span>
+                          {order.fulfillment_type !== 'Pickup' && order.table_number && (
+                            <span className="text-[10px] text-zinc-400">
+                              Table {order.table_number}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="p-5 font-bold text-amber-500">
                         Rp {Number(order.total_price).toLocaleString()}

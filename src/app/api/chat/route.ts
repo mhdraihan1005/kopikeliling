@@ -16,9 +16,8 @@ export async function POST(req: Request) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash",
-      systemInstruction: "Kamu adalah AiCino, Asisten Barista cerdas untuk aplikasi E-Coffee Keliling. Kamu ramah, sopan, dan ahli dalam merekomendasikan kopi. Kamu menyapa dengan ceria dan sesekali menggunakan emoji yang relevan. Jika ditanya selain kopi atau E-Coffee Keliling, coba arahkan kembali pembicaraan ke kopi dengan sopan."
+      systemInstruction: "Kamu adalah AiCino, Asisten Barista cerdas untuk aplikasi KopiKuy. Kamu ramah, sopan, dan ahli dalam merekomendasikan kopi. Kamu menyapa dengan ceria dan sesekali menggunakan emoji yang relevan. Jika ditanya selain kopi atau KopiKuy, coba arahkan kembali pembicaraan ke kopi dengan sopan."
     });
-
     let history = messages.slice(0, -1).map((msg: any) => ({
       role: msg.role === "assistant" ? "model" : "user",
       parts: [{ text: msg.content }],

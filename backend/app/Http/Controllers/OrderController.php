@@ -16,9 +16,9 @@ class OrderController extends Controller
 
         $userId = $request->query('user_id');
         if ($userId) {
-            return response()->json(Order::with('reviews')->where('user_id', $userId)->orderBy('created_at', 'desc')->get());
+            return response()->json(Order::with(['reviews', 'user'])->where('user_id', $userId)->orderBy('created_at', 'desc')->get());
         }
-        return response()->json(Order::with('reviews')->orderBy('created_at', 'desc')->get());
+        return response()->json(Order::with(['reviews', 'user'])->orderBy('created_at', 'desc')->get());
     }
 
     private function checkExpiredOrders()
@@ -57,9 +57,12 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|integer',
+            'user_id' => 'nullable|integer',
             'total_price' => 'required|integer',
-            'items' => 'required|array'
+            'items' => 'required|array',
+            'fulfillment_type' => 'required|string|in:Dine In,Pickup',
+            'table_number' => 'required_if:fulfillment_type,Dine In|nullable|string',
+            'guest_name' => 'required_without:user_id|nullable|string'
         ]);
 
         $order = Order::create([
@@ -67,7 +70,10 @@ class OrderController extends Controller
             'total_price' => $request->total_price,
             'items' => $request->items,
             'status' => 'Pending',
-            'payment_status' => 'Unpaid'
+            'payment_status' => 'Unpaid',
+            'fulfillment_type' => $request->fulfillment_type,
+            'table_number' => $request->table_number,
+            'guest_name' => $request->guest_name,
         ]);
 
         // Kurangi stok produk
@@ -83,7 +89,7 @@ class OrderController extends Controller
         \Midtrans\Config::$isSanitized = env('MIDTRANS_IS_SANITIZED', true);
         \Midtrans\Config::$is3ds = env('MIDTRANS_IS_3DS', true);
 
-        $user = User::find($request->user_id);
+        $user = $request->user_id ? User::find($request->user_id) : null;
 
         $params = [
             'transaction_details' => [
@@ -91,8 +97,8 @@ class OrderController extends Controller
                 'gross_amount' => $order->total_price,
             ],
             'customer_details' => [
-                'first_name' => $user ? $user->name : 'Customer-' . $order->user_id,
-                'email'      => $user ? $user->email : 'nomail@example.com',
+                'first_name' => $user ? $user->name : ($request->guest_name ?? 'Guest-' . $order->id),
+                'email'      => $user ? $user->email : 'guest@example.com',
             ],
             'expiry' => [
                 'start_time' => date("Y-m-d H:i:s O"),

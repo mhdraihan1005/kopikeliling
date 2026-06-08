@@ -19,11 +19,22 @@ interface Order {
   items: OrderItem[];
   created_at: string;
   user_id: number;
+  fulfillment_type?: string;
+  table_number?: string;
+  guest_name?: string;
 }
 
 export default function InvoicePage({ params }: { params: { id: string } }) {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(true);
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      setIsGuest(false);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -53,7 +64,9 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
     return (
       <div className="min-h-screen bg-stone-900 flex flex-col items-center justify-center text-white">
         <h1 className="text-2xl font-bold mb-4">Struk Tidak Ditemukan</h1>
-        <Link href="/riwayat" className="text-amber-500 hover:underline">Kembali ke Riwayat</Link>
+        <Link href={isGuest ? "/" : "/riwayat"} className="text-amber-500 hover:underline">
+          Kembali ke {isGuest ? "Halaman Utama" : "Riwayat"}
+        </Link>
       </div>
     );
   }
@@ -67,7 +80,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
       
       {/* Tombol Aksi - Disembunyikan saat diprint */}
       <div className="max-w-md mx-auto mb-6 flex justify-between px-4 print:hidden">
-        <Link href="/riwayat" className="text-white hover:text-amber-400 flex items-center gap-2 text-sm font-sans transition-colors">
+        <Link href={isGuest ? "/" : "/riwayat"} className="text-white hover:text-amber-400 flex items-center gap-2 text-sm font-sans transition-colors">
           <ArrowLeft size={16} /> Kembali
         </Link>
         <button 
@@ -83,8 +96,8 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
         
         {/* Header Toko */}
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold mb-1 tracking-widest">E-COFFEE</h1>
-          <p className="text-sm font-bold uppercase tracking-widest border-y border-black py-1 mb-2 inline-block">Keliling</p>
+          <h1 className="text-2xl font-bold mb-1 tracking-widest">KOPIKUY</h1>
+          <p className="text-sm font-bold uppercase tracking-widest border-y border-black py-1 mb-2 inline-block">KopiKuy</p>
           <p className="text-xs text-gray-600">Politeknik Negeri Batam, Batam Centre</p>
           <p className="text-xs text-gray-600">Telp: 0896-6846-8181</p>
         </div>
@@ -103,6 +116,22 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
             <span>KASIR:</span>
             <span>SISTEM DIGITAL</span>
           </div>
+          <div className="flex justify-between mb-1">
+            <span>LAYANAN:</span>
+            <span className="font-bold uppercase">{order.fulfillment_type || 'Dine In'}</span>
+          </div>
+          {order.fulfillment_type === 'Dine In' && order.table_number && (
+            <div className="flex justify-between mb-1">
+              <span>MEJA:</span>
+              <span className="font-bold">{order.table_number}</span>
+            </div>
+          )}
+          {order.guest_name && (
+            <div className="flex justify-between mb-1">
+              <span>NAMA GUEST:</span>
+              <span className="font-bold uppercase">{order.guest_name}</span>
+            </div>
+          )}
         </div>
 
         {/* List Barang */}
@@ -159,7 +188,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
         {/* Footer */}
         <div className="text-center text-xs mt-8">
           <p className="mb-1">TERIMA KASIH ATAS KUNJUNGAN ANDA</p>
-          <p className="mb-6">Kritik & Saran: care@ecoffeekeliling.com</p>
+          <p className="mb-6">Kritik & Saran: care@kopikuy.com</p>
           
           <div className="w-full flex justify-center opacity-80">
             {/* Barcode Dummy SVG */}

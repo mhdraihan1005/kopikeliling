@@ -14,7 +14,17 @@ export default function AdminMenuPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    price: string;
+    stock: string;
+    category: string;
+    image?: string;
+    prepTime: string;
+    rating: string;
+    images?: any[];
+  }>({
     name: "",
     description: "",
     price: "",
@@ -22,7 +32,8 @@ export default function AdminMenuPage() {
     category: "Coffee",
     image: "/kopi1.png",
     prepTime: "5-10 min",
-    rating: "4.5"
+    rating: "4.5",
+    images: []
   });
 
   const fetchProducts = async () => {
@@ -51,7 +62,12 @@ export default function AdminMenuPage() {
 
   const getImageUrl = (url: string) => {
     if (!url) return '/kopi1.png';
-    if (url.startsWith('/storage/')) return `http://127.0.0.1:8000${url}`;
+    if (url.startsWith('/storage/')) {
+      const host = typeof window !== 'undefined' 
+        ? (window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname) 
+        : '127.0.0.1';
+      return `http://${host}:8000${url}`;
+    }
     if (!url.startsWith('http') && !url.startsWith('/')) return `/${url}`;
     return url;
   };

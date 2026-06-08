@@ -4,6 +4,7 @@ import React from "react";
 import AdminNavbar from "@/components/AdminNavbar";
 import AdminSidebar from "@/components/AdminSidebar";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import PageTransition from "@/components/PageTransition";
 import { Coffee } from "lucide-react";
 
 export default function AdminLayout({
@@ -30,7 +31,9 @@ export default function AdminLayout({
             {/* Main Dashboard Content Workspace */}
             <main className="flex-1 w-full p-4 sm:p-8 overflow-y-auto">
               <div className="max-w-5xl mx-auto">
-                {children}
+                <PageTransition variant="zoomIn">
+                  {children}
+                </PageTransition>
               </div>
             </main>
           </div>

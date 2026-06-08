@@ -9,6 +9,7 @@ export default function AdminDashboardPage() {
     totalOrders: 0,
     totalProducts: 0,
     pendingOrders: 0,
+    totalUsers: 0,
   });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +86,7 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-white tracking-tight">Selamat datang, Admin!</h2>
-            <p className="text-zinc-400 mt-1">Berikut adalah ringkasan performa E-Coffee Keliling hari ini.</p>
+            <p className="text-zinc-400 mt-1">Berikut adalah ringkasan performa KopiKuy hari ini.</p>
           </div>
         </div>
         <div className="relative z-10 hidden sm:flex gap-3">
@@ -141,6 +142,7 @@ export default function AdminDashboardPage() {
             <thead>
               <tr className="text-zinc-500 text-xs uppercase tracking-wider bg-zinc-900/30">
                 <th className="px-6 py-4 font-semibold">ID Pesanan</th>
+                <th className="px-6 py-4 font-semibold">Pembeli</th>
                 <th className="px-6 py-4 font-semibold">Tanggal</th>
                 <th className="px-6 py-4 font-semibold">Total Harga</th>
                 <th className="px-6 py-4 font-semibold text-right">Status</th>
@@ -149,7 +151,7 @@ export default function AdminDashboardPage() {
             <tbody className="divide-y divide-zinc-800/50">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-zinc-500 animate-pulse">Memuat data pesanan terbaru...</td>
+                  <td colSpan={5} className="px-6 py-8 text-center text-zinc-500 animate-pulse">Memuat data pesanan terbaru...</td>
                 </tr>
               ) : recentOrders.length > 0 ? (
                 recentOrders.map((order) => (
@@ -158,6 +160,19 @@ export default function AdminDashboardPage() {
                       <span className="font-bold text-white group-hover:text-amber-400 transition-colors">
                         #ORD-{order.id.toString().padStart(4, '0')}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-zinc-300 text-sm">
+                      {order.user?.name ? (
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-white">{order.user.name}</span>
+                          <span className="text-[9px] text-amber-500 font-bold uppercase tracking-wider">Member</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-white">{order.guest_name || 'Guest'}</span>
+                          <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Guest</span>
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-zinc-400 text-sm">
                       {new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
@@ -179,7 +194,7 @@ export default function AdminDashboardPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-zinc-500">Belum ada pesanan masuk.</td>
+                  <td colSpan={5} className="px-6 py-8 text-center text-zinc-500">Belum ada pesanan masuk.</td>
                 </tr>
               )}
             </tbody>

@@ -55,7 +55,7 @@ export default function LoginPage() {
           <div className="w-12 h-12 bg-amber-600/20 backdrop-blur-sm border border-amber-500/50 rounded-xl flex items-center justify-center">
             <Coffee size={24} className="text-amber-500" />
           </div>
-          <span className="text-xl font-bold text-white tracking-widest uppercase">E-Coffee</span>
+          <span className="text-xl font-bold text-white tracking-widest uppercase">KopiKuy</span>
         </div>
 
         <div className="relative z-10 max-w-lg mb-12">
@@ -66,7 +66,7 @@ export default function LoginPage() {
             </span>
           </h1>
           <p className="text-zinc-400 text-lg leading-relaxed">
-            Pesan kopi keliling favorit Anda dari mana saja, dan kami akan mengantarkannya dengan senyum.
+            Pesan KopiKuy favorit Anda dari mana saja, dan kami akan mengantarkannya dengan senyum.
           </p>
         </div>
       </div>

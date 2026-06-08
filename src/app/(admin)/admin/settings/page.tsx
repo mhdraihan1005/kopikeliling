@@ -116,7 +116,7 @@ export default function AdminSettingsPage() {
                         value={settings.shop_name}
                         onChange={(e) => setSettings({...settings, shop_name: e.target.value})}
                         className="w-full bg-zinc-950 border border-zinc-800 text-white p-3 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
-                        placeholder="E-Coffee Keliling"
+                        placeholder="KopiKuy"
                       />
                     </div>
                     <div className="space-y-2">

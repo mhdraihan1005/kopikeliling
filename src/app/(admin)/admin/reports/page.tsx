@@ -90,7 +90,7 @@ export default function AdminReportsPage() {
             </div>
             Laporan Penjualan
           </h1>
-          <p className="text-zinc-400 mt-2">Analisis performa bisnis E-Coffee Keliling Anda.</p>
+          <p className="text-zinc-400 mt-2">Analisis performa bisnis KopiKuy Anda.</p>
         </div>
         
         <div className="flex flex-wrap gap-3">

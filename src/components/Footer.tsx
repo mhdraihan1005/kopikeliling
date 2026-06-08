@@ -17,7 +17,7 @@ export default function Footer() {
               <span className="tracking-tight">Kopi<span className="text-amber-500">Kuy!</span></span>
             </div>
             <p className="text-sm leading-relaxed mb-6 italic">
-              "The best brew, delivered directly to you. Coffee made simple, with KopiKuy!"
+              &quot;The best brew, delivered directly to you. Coffee made simple, with KopiKuy!&quot;
             </p>
             <div className="flex gap-4">
               <a href="#" className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all duration-300">

@@ -18,7 +18,8 @@ interface Review {
     id: number;
     user: {
       name: string;
-    }
+    } | null;
+    guest_name?: string | null;
   };
 }
 
@@ -47,7 +48,8 @@ export default function AdminReviewsPage() {
 
   const filteredReviews = reviews.filter(r => 
     r.product?.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    r.order?.user?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (r.order?.user?.name && r.order.user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (r.order?.guest_name && r.order.guest_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (r.comment && r.comment.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
@@ -67,7 +69,12 @@ export default function AdminReviewsPage() {
 
   const getImageUrl = (url: string) => {
     if (!url) return '/kopi1.png';
-    if (url.startsWith('/storage/')) return `http://127.0.0.1:8000${url}`;
+    if (url.startsWith('/storage/')) {
+      const host = typeof window !== 'undefined' 
+        ? (window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname) 
+        : '127.0.0.1';
+      return `http://${host}:8000${url}`;
+    }
     if (!url.startsWith('http') && !url.startsWith('/')) return `/${url}`;
     return url;
   };
@@ -113,12 +120,12 @@ export default function AdminReviewsPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-bold tracking-tight text-lg leading-none mb-1.5">{review.product?.name}</h3>
-                    <div className="flex items-center gap-2">
-                       <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-amber-500 border border-white/5">
-                          {review.order?.user?.name.charAt(0)}
-                       </div>
-                       <p className="text-xs text-zinc-500">By <span className="text-zinc-300 font-medium">{review.order?.user?.name}</span></p>
-                    </div>
+                     <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-amber-500 border border-white/5">
+                           {(review.order?.user?.name || review.order?.guest_name || 'G').charAt(0)}
+                        </div>
+                        <p className="text-xs text-zinc-500">By <span className="text-zinc-300 font-medium">{review.order?.user?.name || review.order?.guest_name || 'Guest'}</span></p>
+                     </div>
                   </div>
                 </div>
                 <button 
@@ -148,7 +155,7 @@ export default function AdminReviewsPage() {
                    <MessageSquare size={40} className="text-zinc-500" />
                 </div>
                 {review.comment ? (
-                  <p className="text-sm text-zinc-300 italic relative z-10">"{review.comment}"</p>
+                  <p className="text-sm text-zinc-300 italic relative z-10">&quot;{review.comment}&quot;</p>
                 ) : (
                   <p className="text-xs text-zinc-600 italic relative z-10">(No comment provided)</p>
                 )}
