@@ -37,7 +37,7 @@ export default function CustomToaster() {
               </div>
               <div className="flex-1 text-center pr-4">
                 <p className={`text-[20px] font-extrabold ${isError ? "text-red-700" : "text-[#166534]"}`}>
-                  {isError ? "Gagal!" : "Berhasil!"}
+                  {isError ? "Failed!" : "Success!"}
                 </p>
                 <p className={`mt-1 text-[15px] font-medium leading-tight ${isError ? "text-red-600" : "text-[#15803d]"}`}>
                   {resolveValue(t.message, t)}

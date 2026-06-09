@@ -10,8 +10,8 @@ import CustomToaster from "@/components/CustomToaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "KopiKuy! - Kopi Keliling Modern",
-  description: "Nikmati seduhan kopi terbaik langsung ke tempatmu dengan KopiKuy!",
+  title: "KopiKuy! - Modern Coffee POS & E-Commerce",
+  description: "Enjoy the best coffee brew directly to your place with KopiKuy!",
 };
 
 import Script from "next/script";

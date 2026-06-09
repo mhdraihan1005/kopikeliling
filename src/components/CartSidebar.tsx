@@ -3,7 +3,7 @@
 import { X, Plus, Minus, Trash2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 
 export default function CartSidebar({
@@ -19,9 +19,32 @@ export default function CartSidebar({
   const [fulfillmentType, setFulfillmentType] = useState<"Dine In" | "Pickup">("Dine In");
   const [tableNumber, setTableNumber] = useState("");
   const [guestName, setGuestName] = useState("");
+  const [isNewUser, setIsNewUser] = useState(false);
+
+  useEffect(() => {
+    const checkNewUser = async () => {
+      if (!user) {
+        setIsNewUser(false);
+        return;
+      }
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/api/orders?user_id=${user.id}`);
+        if (res.ok) {
+          const orders = await res.json();
+          const hasOrders = orders.some((o: any) => o.payment_status === "Paid" || o.status === "Completed" || o.status === "Selesai" || o.status === "Processing" || o.status === "Diproses");
+          setIsNewUser(!hasOrders);
+        }
+      } catch (e) {
+        console.error("Failed to check new user status", e);
+      }
+    };
+    checkNewUser();
+  }, [user]);
 
   const totalItems = cart.reduce((acc: number, item: any) => acc + item.qty, 0);
   const totalPrice = cart.reduce((acc: number, item: any) => acc + (item.price * item.qty), 0);
+  const discount = isNewUser ? Math.round(totalPrice * 0.20) : 0;
+  const finalPrice = totalPrice - discount;
 
   const handleCheckout = async () => {
     try {
@@ -43,7 +66,7 @@ export default function CartSidebar({
       
       const orderPayload = {
         user_id: user ? parseInt(user.id) : null,
-        total_price: totalPrice,
+        total_price: finalPrice,
         items: cart,
         fulfillment_type: fulfillmentType,
         table_number: fulfillmentType === "Dine In" ? tableNumber : null,
@@ -70,7 +93,7 @@ export default function CartSidebar({
               await fetch(`http://127.0.0.1:8000/api/orders/${data.order.id}/status`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ payment_status: 'Paid', status: 'Diproses' }),
+                body: JSON.stringify({ payment_status: 'Paid', status: 'Processing' }),
               });
             } catch (e) {
               console.error('Failed to update status', e);
@@ -217,12 +240,12 @@ export default function CartSidebar({
 
               {!user && (
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Nama Pemesan</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Customer Name</label>
                   <input
                     type="text"
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
-                    placeholder="Masukkan nama Anda..."
+                    placeholder="Enter your name..."
                     className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-amber-500 transition-colors"
                   />
                 </div>
@@ -230,21 +253,34 @@ export default function CartSidebar({
 
               {fulfillmentType === "Dine In" && (
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Nomor Meja</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Table Number</label>
                   <input
                     type="text"
                     value={tableNumber}
                     onChange={(e) => setTableNumber(e.target.value)}
-                    placeholder="Masukkan nomor meja (misal: 5)..."
+                    placeholder="Enter table number (e.g. 5)..."
                     className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-amber-500 transition-colors"
                   />
                 </div>
               )}
             </div>
 
+            {isNewUser && (
+              <div className="space-y-1.5 border-b border-white/5 pb-3 mb-3 text-xs font-bold">
+                <div className="flex justify-between text-zinc-400">
+                  <span>Subtotal</span>
+                  <span>Rp {totalPrice.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-emerald-500">
+                  <span>Welcome Member Discount (20%)</span>
+                  <span>-Rp {discount.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between mb-5">
               <span className="text-zinc-500 font-bold uppercase text-[10px] tracking-widest">Total Payment</span>
-              <span className="text-2xl font-black text-white">Rp {totalPrice.toLocaleString()}</span>
+              <span className="text-2xl font-black text-white">Rp {finalPrice.toLocaleString()}</span>
             </div>
             <button 
               onClick={handleCheckout}

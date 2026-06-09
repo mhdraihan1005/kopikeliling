@@ -25,11 +25,11 @@ export default function RegisterPage() {
     const success = await register(name, email, password);
 
     if (success) {
-      toast.success("Pendaftaran berhasil! Silakan login.");
+      toast.success("Registration successful! Please login.");
       router.push('/login');
     } else {
-      toast.error("Pendaftaran gagal. Email mungkin sudah terpakai.");
-      setError("Pendaftaran gagal. Email mungkin sudah terdaftar atau password kurang dari 6 karakter.");
+      toast.error("Registration failed. Email might already be in use.");
+      setError("Registration failed. Email might already be registered or password is less than 6 characters.");
       setLoading(false);
     }
   };
@@ -53,13 +53,13 @@ export default function RegisterPage() {
 
         <div className="relative z-10 max-w-lg mb-12">
           <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
-            Bergabunglah dengan<br/>
+            Join<br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-amber-300">
-              Komunitas Kami.
+              Our Community.
             </span>
           </h1>
           <p className="text-zinc-400 text-lg leading-relaxed">
-            Dapatkan pengalaman pesan kopi yang cepat, mudah, dan nikmati berbagai promo eksklusif untuk setiap member kami.
+            Get a fast, easy coffee ordering experience and enjoy various exclusive promos for our members.
           </p>
         </div>
       </div>
@@ -79,8 +79,8 @@ export default function RegisterPage() {
             <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center mb-6 lg:hidden shadow-lg shadow-amber-600/30">
               <Coffee size={32} className="text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2 text-center lg:text-left">Daftar Akun Baru</h2>
-            <p className="text-zinc-400 text-center lg:text-left text-sm">Lengkapi data di bawah ini untuk bergabung.</p>
+            <h2 className="text-3xl font-bold text-white mb-2 text-center lg:text-left">Register New Account</h2>
+            <p className="text-zinc-400 text-center lg:text-left text-sm">Fill in the data below to join.</p>
           </div>
 
           {error && (
@@ -91,7 +91,7 @@ export default function RegisterPage() {
 
           <form onSubmit={handleRegister} className="flex flex-col gap-4">
             <div className="space-y-1.5">
-               <label className="text-sm text-zinc-300 font-medium ml-1">Nama Lengkap</label>
+               <label className="text-sm text-zinc-300 font-medium ml-1">Full Name</label>
                <div className="relative group">
                  <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-amber-500 transition-colors" />
                  <input 
@@ -115,7 +115,7 @@ export default function RegisterPage() {
                    value={email}
                    onChange={(e) => setEmail(e.target.value)}
                    className="w-full bg-zinc-900/50 lg:bg-zinc-900 border border-zinc-800 text-white px-11 py-3.5 rounded-2xl outline-none focus:bg-zinc-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-zinc-600"
-                   placeholder="email@anda.com"
+                   placeholder="youremail@example.com"
                  />
                </div>
             </div>
@@ -133,7 +133,7 @@ export default function RegisterPage() {
                    value={password}
                    onChange={(e) => setPassword(e.target.value)}
                    className="w-full bg-zinc-900/50 lg:bg-zinc-900 border border-zinc-800 text-white px-11 py-3.5 rounded-2xl outline-none focus:bg-zinc-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-zinc-600"
-                   placeholder="Minimal 6 karakter"
+                   placeholder="Min. 6 characters"
                  />
                </div>
             </div>
@@ -143,15 +143,15 @@ export default function RegisterPage() {
               disabled={loading}
               className="mt-4 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 disabled:opacity-50 disabled:grayscale text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-amber-600/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 active:translate-y-0"
             >
-              {loading ? <Loader2 size={20} className="animate-spin" /> : "Buat Akun"}
+              {loading ? <Loader2 size={20} className="animate-spin" /> : "Create Account"}
             </button>
           </form>
 
           <div className="mt-8 text-center text-zinc-500 text-sm">
             <p className="mb-6">
-              Sudah punya akun?{" "}
+              Already have an account?{" "}
               <Link href="/login" className="text-amber-500 hover:text-amber-400 font-medium hover:underline underline-offset-4 transition-all">
-                Login di sini
+                Login here
               </Link>
             </p>
           </div>

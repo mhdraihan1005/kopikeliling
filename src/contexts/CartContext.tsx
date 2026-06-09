@@ -22,7 +22,7 @@ export function CartProvider({ children }: any) {
     });
 
     toast.success(
-      <span>✅ Menu Berhasil Dimasukan<br/>kedalam Keranjang</span>, 
+      <span>✅ Item successfully added<br/>to cart</span>, 
       { duration: 3000 }
     );
   };

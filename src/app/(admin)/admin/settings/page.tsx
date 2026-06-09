@@ -47,22 +47,22 @@ export default function AdminSettingsPage() {
       });
 
       if (res.ok) {
-        toast.success("Pengaturan berhasil disimpan!");
+        toast.success("Settings saved successfully!");
       } else {
-        toast.error("Gagal menyimpan pengaturan.");
+        toast.error("Failed to save settings.");
       }
     } catch (error) {
       console.error("Error saving settings", error);
-      toast.error("Terjadi kesalahan koneksi.");
+      toast.error("A connection error occurred.");
     } finally {
       setSaving(false);
     }
   };
 
   const tabs = [
-    { id: "general", name: "Umum", icon: <Home size={20} /> },
-    { id: "profile", name: "Profil Admin", icon: <User size={20} /> },
-    { id: "payment", name: "Pembayaran", icon: <DollarSign size={20} /> },
+    { id: "general", name: "General", icon: <Home size={20} /> },
+    { id: "profile", name: "Admin Profile", icon: <User size={20} /> },
+    { id: "payment", name: "Payment", icon: <DollarSign size={20} /> },
   ];
 
   return (
@@ -73,9 +73,9 @@ export default function AdminSettingsPage() {
             <div className="bg-amber-600/20 p-2 rounded-xl">
               <Settings className="text-amber-500" size={32} />
             </div>
-            Pengaturan Sistem
+            System Settings
           </h1>
-          <p className="text-zinc-400 mt-2">Kelola identitas dan operasional kedai kopi Anda.</p>
+          <p className="text-zinc-400 mt-2">Manage your coffee shop identity and operations.</p>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ export default function AdminSettingsPage() {
         {/* Content Area */}
         <div className="flex-1 bg-zinc-900/50 border border-zinc-800 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-xl">
           {loading ? (
-            <div className="py-20 text-center text-zinc-500 animate-pulse font-medium">Memuat pengaturan...</div>
+            <div className="py-20 text-center text-zinc-500 animate-pulse font-medium">Loading settings...</div>
           ) : (
             <form onSubmit={handleSave} className="space-y-6">
               {activeTab === "general" && (
@@ -109,7 +109,7 @@ export default function AdminSettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-                        <Home size={16} className="text-amber-500" /> Nama Kedai
+                        <Home size={16} className="text-amber-500" /> Shop Name
                       </label>
                       <input 
                         type="text" 
@@ -121,7 +121,7 @@ export default function AdminSettingsPage() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-                        <Clock size={16} className="text-amber-500" /> Jam Operasional
+                        <Clock size={16} className="text-amber-500" /> Operating Hours
                       </label>
                       <input 
                         type="text" 
@@ -135,20 +135,20 @@ export default function AdminSettingsPage() {
 
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-                      <MapPin size={16} className="text-amber-500" /> Alamat Kedai
+                      <MapPin size={16} className="text-amber-500" /> Shop Address
                     </label>
                     <textarea 
                       value={settings.shop_address}
                       onChange={(e) => setSettings({...settings, shop_address: e.target.value})}
                       className="w-full bg-zinc-950 border border-zinc-800 text-white p-3 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all h-24 resize-none"
-                      placeholder="Masukkan alamat lengkap..."
+                      placeholder="Enter complete address..."
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-                        <Phone size={16} className="text-amber-500" /> WhatsApp (Aktif)
+                        <Phone size={16} className="text-amber-500" /> WhatsApp (Active)
                       </label>
                       <input 
                         type="text" 
@@ -176,11 +176,11 @@ export default function AdminSettingsPage() {
                     <div className="flex items-center justify-between p-4 bg-zinc-950 border border-zinc-800 rounded-2xl">
                       <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-lg ${settings.shop_status === 'open' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                          <CheckCircle2 size={20} />
+                           <CheckCircle2 size={20} />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-white">Status Operasional Toko</p>
-                          <p className="text-xs text-zinc-500">{settings.shop_status === 'open' ? 'Pelanggan dapat melakukan pemesanan' : 'Pemesanan dinonaktifkan sementara'}</p>
+                          <p className="text-sm font-bold text-white">Shop Operational Status</p>
+                          <p className="text-xs text-zinc-500">{settings.shop_status === 'open' ? 'Customers can place orders' : 'Ordering is temporarily disabled'}</p>
                         </div>
                       </div>
                       <button 
@@ -192,7 +192,7 @@ export default function AdminSettingsPage() {
                             : "bg-rose-600 text-white"
                         }`}
                       >
-                        {settings.shop_status === 'open' ? 'BUKA' : 'TUTUP'}
+                        {settings.shop_status === 'open' ? 'OPEN' : 'CLOSED'}
                       </button>
                     </div>
                   </div>
@@ -204,11 +204,11 @@ export default function AdminSettingsPage() {
                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-3">
                       <Shield className="text-amber-500 mt-1" size={18} />
                       <p className="text-xs text-amber-200/70 leading-relaxed">
-                        Anda sedang mengelola akun administrator utama. Perubahan pada password akan memerlukan login ulang pada sesi berikutnya.
+                        You are managing the main administrator account. Password changes will require logging in again in the next session.
                       </p>
                    </div>
                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-zinc-300">Username Admin</label>
+                      <label className="text-sm font-bold text-zinc-300">Admin Username</label>
                       <input 
                         type="text" 
                         defaultValue="Administrator"
@@ -217,7 +217,7 @@ export default function AdminSettingsPage() {
                       />
                    </div>
                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-zinc-300">Email Utama</label>
+                      <label className="text-sm font-bold text-zinc-300">Primary Email</label>
                       <input 
                         type="email" 
                         defaultValue="admin@email.com"
@@ -227,10 +227,10 @@ export default function AdminSettingsPage() {
                    </div>
                    <button 
                     type="button"
-                    onClick={() => toast.success("Fitur ubah password ada di manajemen user!")}
+                    onClick={() => toast.success("Change password feature is in User Management!")}
                     className="text-amber-500 text-sm font-bold hover:underline"
                    >
-                     Klik di sini untuk manajemen keamanan lebih lanjut &rarr;
+                     Click here for further security management &rarr;
                    </button>
                 </div>
               )}
@@ -244,16 +244,16 @@ export default function AdminSettingsPage() {
                     <div>
                       <h3 className="text-lg font-bold text-white">Midtrans Payment Gateway</h3>
                       <p className="text-sm text-zinc-500 mt-1 max-w-xs mx-auto">
-                        Integrasi pembayaran otomatis sedang aktif menggunakan mode <b>Sandbox</b>.
+                        Automated payment integration is active using <b>Sandbox</b> mode.
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase rounded-full border border-emerald-500/30">Terhubung</span>
+                      <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase rounded-full border border-emerald-500/30">Connected</span>
                       <span className="px-3 py-1 bg-zinc-800 text-zinc-400 text-[10px] font-black uppercase rounded-full border border-zinc-700">Sandbox Mode</span>
                     </div>
                   </div>
                   <p className="text-[10px] text-zinc-600 text-center uppercase tracking-widest font-black">
-                    Api key dikelola melalui file environment (.env) untuk keamanan
+                    API key is managed via environment file (.env) for security
                   </p>
                 </div>
               )}
@@ -265,7 +265,7 @@ export default function AdminSettingsPage() {
                   className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-amber-600/20 transition-all transform active:scale-95"
                 >
                   {saving ? <Check className="animate-pulse" size={20} /> : <Check size={20} />}
-                  Simpan Perubahan
+                  Save Changes
                 </button>
               </div>
             </form>

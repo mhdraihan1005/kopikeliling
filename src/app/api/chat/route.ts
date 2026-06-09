@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { message: "API Key belum diatur. Tolong tambahkan GEMINI_API_KEY di file .env.local Anda ya! 😊" },
+        { message: "API Key is not configured. Please add GEMINI_API_KEY to your .env file! 😊" },
         { status: 200 }
       );
     }
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash",
-      systemInstruction: "Kamu adalah AiCino, Asisten Barista cerdas untuk aplikasi KopiKuy. Kamu ramah, sopan, dan ahli dalam merekomendasikan kopi. Kamu menyapa dengan ceria dan sesekali menggunakan emoji yang relevan. Jika ditanya selain kopi atau KopiKuy, coba arahkan kembali pembicaraan ke kopi dengan sopan."
+      systemInstruction: "You are AiCino, the smart Barista Assistant for the KopiKuy application. You are friendly, polite, and an expert in recommending coffee. You greet users cheerfully and occasionally use relevant emojis. If asked about something other than coffee or KopiKuy, politely redirect the conversation back to coffee."
     });
     let history = messages.slice(0, -1).map((msg: any) => ({
       role: msg.role === "assistant" ? "model" : "user",
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Gemini API Error:", error);
     return NextResponse.json(
-      { message: "Maaf, sepertinya mesin espresso saya sedang gangguan (Error). Tolong coba lagi nanti!" },
+      { message: "Sorry, it seems my espresso machine is having trouble (Error). Please try again later!" },
       { status: 500 }
     );
   }

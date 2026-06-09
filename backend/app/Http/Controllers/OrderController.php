@@ -23,14 +23,14 @@ class OrderController extends Controller
 
     private function checkExpiredOrders()
     {
-        // Cari order yang statusnya Pending/Unpaid dan sudah lebih dari 5 menit
+        // Find orders that are Pending/Unpaid and older than 5 minutes
         $expiredOrders = Order::where('payment_status', 'Unpaid')
             ->where('status', 'Pending')
             ->where('created_at', '<', now()->subMinutes(5))
             ->get();
 
         foreach ($expiredOrders as $order) {
-            // Kembalikan stok
+            // Restore stock
             foreach ($order->items as $item) {
                 $product = Product::find($item['id']);
                 if ($product) {
@@ -38,10 +38,8 @@ class OrderController extends Controller
                 }
             }
             
-            // Update status jadi Dibatalkan
-            $order->status = 'Dibatalkan';
-            $order->payment_status = 'Expired';
-            $order->save();
+            // Delete order from database
+            $order->delete();
         }
     }
 
@@ -65,9 +63,36 @@ class OrderController extends Controller
             'guest_name' => 'required_without:user_id|nullable|string'
         ]);
 
+        // Calculate subtotal from database prices to verify total and apply discount securely
+        $subtotal = 0;
+        foreach ($request->items as $item) {
+            $product = Product::find($item['id']);
+            if ($product) {
+                $qty = $item['qty'] ?? $item['quantity'] ?? 1;
+                $subtotal += $product->price * $qty;
+            }
+        }
+
+        // Apply 20% discount if the user is a logged-in member with no previous successful orders
+        $discount = 0;
+        if ($request->user_id) {
+            $hasPreviousOrders = Order::where('user_id', $request->user_id)
+                ->where(function($query) {
+                    $query->where('payment_status', 'Paid')
+                          ->orWhereIn('status', ['Completed', 'Processing']);
+                })
+                ->exists();
+
+            if (!$hasPreviousOrders) {
+                $discount = round($subtotal * 0.20);
+            }
+        }
+
+        $finalPrice = $subtotal - $discount;
+
         $order = Order::create([
             'user_id' => $request->user_id,
-            'total_price' => $request->total_price,
+            'total_price' => $finalPrice,
             'items' => $request->items,
             'status' => 'Pending',
             'payment_status' => 'Unpaid',
@@ -76,7 +101,7 @@ class OrderController extends Controller
             'guest_name' => $request->guest_name,
         ]);
 
-        // Kurangi stok produk
+        // Decrement product stock
         foreach ($request->items as $item) {
             $product = Product::find($item['id']);
             if ($product) {
@@ -134,7 +159,7 @@ class OrderController extends Controller
                 if ($request->transaction_status == 'capture' || $request->transaction_status == 'settlement') {
                     $order->payment_status = 'Paid';
                     if ($order->status == 'Pending') {
-                        $order->status = 'Diproses';
+                        $order->status = 'Processing';
                     }
                 } elseif ($request->transaction_status == 'pending') {
                     $order->payment_status = 'Pending';

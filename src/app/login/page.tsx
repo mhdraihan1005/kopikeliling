@@ -29,12 +29,12 @@ export default function LoginPage() {
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
-        toast.success(`Selamat datang kembali, ${user.name}!`);
+        toast.success(`Welcome back, ${user.name}!`);
         if (user.role === 'admin') router.push('/admin');
         else router.push('/');
       }
     } else {
-      const msg = result.message || "Email atau Password salah!";
+      const msg = result.message || "Incorrect email or password!";
       toast.error(msg);
       setError(msg);
       setLoading(false);
@@ -60,13 +60,13 @@ export default function LoginPage() {
 
         <div className="relative z-10 max-w-lg mb-12">
           <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
-            Mulai Hari Anda dengan<br/>
+            Start Your Day with<br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-amber-300">
-              Kopi Terbaik.
+              The Best Coffee.
             </span>
           </h1>
           <p className="text-zinc-400 text-lg leading-relaxed">
-            Pesan KopiKuy favorit Anda dari mana saja, dan kami akan mengantarkannya dengan senyum.
+            Order your favorite KopiKuy from anywhere, and we will deliver it with a smile.
           </p>
         </div>
       </div>
@@ -86,8 +86,8 @@ export default function LoginPage() {
             <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center mb-6 lg:hidden shadow-lg shadow-amber-600/30">
               <Coffee size={32} className="text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2 text-center lg:text-left">Selamat Datang</h2>
-            <p className="text-zinc-400 text-center lg:text-left text-sm">Silakan masukkan email dan sandi Anda.</p>
+            <h2 className="text-3xl font-bold text-white mb-2 text-center lg:text-left">Welcome Back</h2>
+            <p className="text-zinc-400 text-center lg:text-left text-sm">Please enter your email and password.</p>
           </div>
 
           {error && (
@@ -115,7 +115,7 @@ export default function LoginPage() {
             <div className="space-y-2">
                <div className="flex items-center justify-between ml-1">
                  <label className="text-sm text-zinc-300 font-medium">Password</label>
-                 <a href="#" className="text-xs text-amber-500 hover:text-amber-400 transition-colors">Lupa sandi?</a>
+                 <a href="#" className="text-xs text-amber-500 hover:text-amber-400 transition-colors">Forgot password?</a>
                </div>
                <div className="relative group">
                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-amber-500 transition-colors" />
@@ -135,15 +135,15 @@ export default function LoginPage() {
               disabled={loading}
               className="mt-6 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 disabled:opacity-50 disabled:grayscale text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-amber-600/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 active:translate-y-0"
             >
-              {loading ? <Loader2 size={20} className="animate-spin" /> : "Masuk ke Akun"}
+              {loading ? <Loader2 size={20} className="animate-spin" /> : "Sign In"}
             </button>
           </form>
 
           <div className="mt-10 text-center">
             <p className="text-zinc-500 text-sm mb-6">
-              Belum punya akun?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/register" className="text-amber-500 hover:text-amber-400 font-medium hover:underline underline-offset-4 transition-all">
-                Daftar sekarang
+                Register now
               </Link>
             </p>
           </div>

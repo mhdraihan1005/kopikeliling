@@ -20,13 +20,13 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Kredensial yang Anda berikan tidak cocok dengan data kami.'],
+                'email' => ['The credentials you provided do not match our records.'],
             ]);
         }
 
         if (!$user->is_active) {
             throw ValidationException::withMessages([
-                'email' => ['Akun Anda telah dinonaktifkan.'],
+                'email' => ['Your account has been deactivated.'],
             ]);
         }
 
@@ -62,7 +62,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         return response()->json([
-            'message' => 'Berhasil logout.'
+            'message' => 'Successfully logged out.'
         ]);
     }
 }

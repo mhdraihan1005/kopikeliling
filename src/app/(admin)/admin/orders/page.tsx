@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ShoppingBag, RefreshCw, Eye, Search } from "lucide-react";
+import { ShoppingBag, RefreshCw, Eye, Search, Play, Check, X, Lock } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 export default function AdminOrdersPage() {
@@ -10,6 +10,7 @@ export default function AdminOrdersPage() {
   
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterToday, setFilterToday] = useState(true);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -48,23 +49,34 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const filteredOrders = orders.filter(o => 
-    o.id.toString().includes(searchQuery) || 
-    o.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    o.payment_status?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (o.user?.name && o.user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (o.guest_name && o.guest_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (o.fulfillment_type && o.fulfillment_type.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (o.table_number && o.table_number.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredOrders = orders.filter(o => {
+    const matchesSearch = 
+      o.id.toString().includes(searchQuery) || 
+      o.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.payment_status?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (o.user?.name && o.user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (o.guest_name && o.guest_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (o.fulfillment_type && o.fulfillment_type.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (o.table_number && o.table_number.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    if (!matchesSearch) return false;
+
+    if (filterToday) {
+      const orderDate = new Date(o.created_at).toDateString();
+      const todayDate = new Date().toDateString();
+      return orderDate === todayDate;
+    }
+
+    return true;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Selesai": return "bg-green-500/10 text-green-500 border-green-500/30";
+      case "Completed": return "bg-green-500/10 text-green-500 border-green-500/30";
       case "Pending": return "bg-yellow-500/10 text-yellow-500 border-yellow-500/30";
-      case "Diproses": return "bg-blue-500/10 text-blue-400 border-blue-500/30";
-      case "Dibatalkan":
-      case "Gagal": return "bg-red-500/10 text-red-500 border-red-500/30";
+      case "Processing": return "bg-blue-500/10 text-blue-400 border-blue-500/30";
+      case "Cancelled":
+      case "Failed": return "bg-red-500/10 text-red-500 border-red-500/30";
       default: return "bg-gray-500/10 text-gray-500 border-gray-500/30";
     }
   };
@@ -78,22 +90,91 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const renderOrderActions = (order: any) => {
+    const status = order.status;
+    
+    switch (status) {
+      case "Pending":
+        return (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => handleUpdateStatus(order.id, "Processing")}
+              className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black uppercase tracking-wider rounded-xl px-3 py-2.5 flex items-center gap-1.5 shadow-lg shadow-blue-600/20 active:scale-95 transition-all"
+            >
+              <Play size={10} fill="currentColor" strokeWidth={3} />
+              Start Brewing
+            </button>
+            <button
+              onClick={() => handleUpdateStatus(order.id, "Cancelled")}
+              title="Cancel Order"
+              className="bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 hover:border-transparent p-2.5 rounded-xl active:scale-95 transition-all"
+            >
+              <X size={12} strokeWidth={3} />
+            </button>
+          </div>
+        );
+      case "Processing":
+        return (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => handleUpdateStatus(order.id, "Completed")}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider rounded-xl px-3 py-2.5 flex items-center gap-1.5 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
+            >
+              <Check size={10} strokeWidth={3} />
+              Complete
+            </button>
+            <button
+              onClick={() => handleUpdateStatus(order.id, "Cancelled")}
+              title="Cancel Order"
+              className="bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 hover:border-transparent p-2.5 rounded-xl active:scale-95 transition-all"
+            >
+              <X size={12} strokeWidth={3} />
+            </button>
+          </div>
+        );
+      case "Completed":
+      case "Cancelled":
+      case "Failed":
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="w-full max-w-5xl mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <h1 className="text-3xl font-black text-white flex items-center gap-3">
           <div className="bg-amber-600/20 p-2 rounded-xl">
             <ShoppingBag className="text-amber-500" size={32} />
           </div>
           Incoming Orders
         </h1>
-        <button 
-          onClick={fetchOrders}
-          disabled={loading}
-          className="bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all border border-white/10"
-        >
-          <RefreshCw size={18} className={loading ? "animate-spin" : ""} /> Refresh Data
-        </button>
+        
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          {/* Today vs All Filter Toggle */}
+          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 text-xs font-bold">
+            <button
+              onClick={() => setFilterToday(true)}
+              className={`px-4 py-2 rounded-lg transition-all ${filterToday ? 'bg-amber-500 text-black shadow-md shadow-amber-500/10' : 'text-zinc-400 hover:text-white'}`}
+            >
+              Today Only
+            </button>
+            <button
+              onClick={() => setFilterToday(false)}
+              className={`px-4 py-2 rounded-lg transition-all ${!filterToday ? 'bg-amber-500 text-black shadow-md shadow-amber-500/10' : 'text-zinc-400 hover:text-white'}`}
+            >
+              All Orders
+            </button>
+          </div>
+
+          <button 
+            onClick={fetchOrders}
+            disabled={loading}
+            className="bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all border border-white/10 text-xs"
+          >
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Refresh Data
+          </button>
+        </div>
       </div>
 
       <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 shadow-2xl rounded-2xl overflow-hidden">
@@ -165,19 +246,8 @@ export default function AdminOrdersPage() {
                           {order.status || 'Pending'}
                         </span>
                       </td>
-                      <td className="p-5">
-                        <div className="flex items-center justify-center gap-2">
-                           <select 
-                             value={order.status}
-                             onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
-                             className="bg-zinc-800 border border-white/10 text-white text-[11px] font-bold uppercase tracking-wider rounded-lg px-2 py-1.5 outline-none focus:border-amber-500 transition-colors appearance-none cursor-pointer text-center min-w-[100px]"
-                           >
-                             <option value="Pending">Pending</option>
-                             <option value="Diproses">Processing</option>
-                             <option value="Selesai">Completed</option>
-                             <option value="Dibatalkan">Cancelled</option>
-                           </select>
-                        </div>
+                      <td className="p-5 text-center">
+                        {renderOrderActions(order)}
                       </td>
                     </tr>
                   );

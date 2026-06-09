@@ -108,7 +108,7 @@ export default function AdminMenuPage() {
   };
 
   const handleDeleteImage = async (imageId: number) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus foto ini?")) return;
+    if (!confirm("Are you sure you want to delete this photo?")) return;
     try {
       const res = await fetch(`http://127.0.0.1:8000/api/product-images/${imageId}`, {
         method: "DELETE",
@@ -169,7 +169,7 @@ export default function AdminMenuPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Apakah anda yakin ingin menghapus menu ini?")) {
+    if (confirm("Are you sure you want to delete this item?")) {
       try {
         const res = await fetch(`http://127.0.0.1:8000/api/products/${id}`, {
           method: "DELETE",
@@ -190,29 +190,29 @@ export default function AdminMenuPage() {
           <div className="bg-amber-600/20 p-2 rounded-xl">
             <Package className="text-amber-500" size={32} />
           </div>
-          Manajemen Menu
+          Menu Management
         </h1>
         <button 
           onClick={() => handleOpenModal()}
           className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-amber-600/30 transition-all duration-300 transform hover:scale-105 border border-amber-500/50"
         >
-          <Plus size={20} /> Tambah Menu
+          <Plus size={20} /> Add Menu
         </button>
       </div>
 
       <div className="bg-[#2d2d2d] border border-[#3a3a3a] shadow-2xl rounded-2xl overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-gray-500 font-medium animate-pulse">Memuat data...</div>
+          <div className="p-8 text-center text-gray-500 font-medium animate-pulse">Loading data...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#1a1a1a] text-gray-400 text-sm uppercase tracking-wider border-b border-[#3a3a3a]">
-                  <th className="p-4 font-bold">Produk</th>
-                  <th className="p-4 font-bold">Kategori</th>
-                  <th className="p-4 font-bold">Harga</th>
-                  <th className="p-4 font-bold">Stok</th>
-                  <th className="p-4 font-bold text-center">Aksi</th>
+                  <th className="p-4 font-bold">Product</th>
+                  <th className="p-4 font-bold">Category</th>
+                  <th className="p-4 font-bold">Price</th>
+                  <th className="p-4 font-bold">Stock</th>
+                  <th className="p-4 font-bold text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#3a3a3a]">
@@ -262,7 +262,7 @@ export default function AdminMenuPage() {
                 ))}
                 {filteredProducts.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-gray-500">Tidak ada data menu yang cocok.</td>
+                    <td colSpan={5} className="p-8 text-center text-gray-500">No menu items match your search.</td>
                   </tr>
                 )}
               </tbody>
@@ -278,38 +278,38 @@ export default function AdminMenuPage() {
           <div className="relative bg-[#2d2d2d] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-[#3a3a3a]">
             <div className="p-6 border-b border-[#3a3a3a] flex justify-between items-center bg-[#1a1a1a]">
               <h2 className="text-xl font-black text-white">
-                {editingId ? "Edit Menu" : "Tambah Menu"}
+                {editingId ? "Edit Menu" : "Add Menu"}
               </h2>
               <button onClick={handleCloseModal} className="text-gray-400 hover:text-white transition-colors">✕</button>
             </div>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1">Nama Produk</label>
+                <label className="block text-sm font-bold text-gray-300 mb-1">Product Name</label>
                 <input 
                   type="text" 
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
-                  placeholder="Kopi Susu Gula Aren"
+                  placeholder="Palm Sugar Coffee Latte"
                 />
               </div>
               
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-300 mb-1">Harga (Rp)</label>
+                  <label className="block text-sm font-bold text-gray-300 mb-1">Price (IDR)</label>
                   <input 
                     type="number" 
                     required
                     value={formData.price}
                     onChange={(e) => setFormData({...formData, price: e.target.value})}
                     className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
-                    placeholder="Contoh: 25000"
+                    placeholder="Example: 25000"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-300 mb-1">Stok</label>
+                  <label className="block text-sm font-bold text-gray-300 mb-1">Stock</label>
                   <input 
                     type="number" 
                     required
@@ -320,7 +320,7 @@ export default function AdminMenuPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-300 mb-1">Kategori</label>
+                  <label className="block text-sm font-bold text-gray-300 mb-1">Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
@@ -336,7 +336,7 @@ export default function AdminMenuPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-300 mb-1">Rating (Bintang)</label>
+                  <label className="block text-sm font-bold text-gray-300 mb-1">Rating (Stars)</label>
                   <input 
                     type="number" 
                     step="0.1"
@@ -345,33 +345,33 @@ export default function AdminMenuPage() {
                     value={formData.rating}
                     onChange={(e) => setFormData({...formData, rating: e.target.value})}
                     className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
-                    placeholder="Contoh: 4.8"
+                    placeholder="Example: 4.8"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-300 mb-1">Waktu Penyajian</label>
+                  <label className="block text-sm font-bold text-gray-300 mb-1">Preparation Time</label>
                   <input 
                     type="text" 
                     value={formData.prepTime}
                     onChange={(e) => setFormData({...formData, prepTime: e.target.value})}
                     className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder-gray-600"
-                    placeholder="Contoh: 5-10 min"
+                    placeholder="Example: 5-10 min"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1">Deskripsi</label>
+                <label className="block text-sm font-bold text-gray-300 mb-1">Description</label>
                 <textarea 
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                   className="w-full p-3 bg-[#1a1a1a] text-white border border-[#3a3a3a] rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all h-24 resize-none placeholder-gray-600"
-                  placeholder="Deskripsi singkat produk..."
+                  placeholder="Short product description..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1">Foto Produk Baru (Bisa pilih lebih dari 1)</label>
+                <label className="block text-sm font-bold text-gray-300 mb-1">New Product Photos (You can select multiple)</label>
                 <input 
                   type="file" 
                   multiple
@@ -381,7 +381,7 @@ export default function AdminMenuPage() {
                 />
                 {editingId && (formData as any).images && (formData as any).images.length > 0 && (
                   <div className="mt-3">
-                    <span className="text-xs text-gray-400 block mb-2">Foto Saat Ini (Klik X untuk menghapus):</span>
+                    <span className="text-xs text-gray-400 block mb-2">Current Photos (Click X to delete):</span>
                     <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
                       {(formData as any).images.map((img: any) => (
                         <div key={img.id} className="relative group flex-shrink-0">
@@ -406,13 +406,13 @@ export default function AdminMenuPage() {
                   onClick={handleCloseModal}
                   className="px-5 py-2.5 text-gray-400 font-bold hover:text-white hover:bg-[#3a3a3a] rounded-xl transition-all"
                 >
-                  Batal
+                  Cancel
                 </button>
                 <button 
                   type="submit"
                   className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/30 transition-all border border-amber-500/50"
                 >
-                  Simpan
+                  Save
                 </button>
               </div>
             </form>

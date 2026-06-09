@@ -12,6 +12,8 @@ interface OrderItem {
   name: string;
   price: number;
   qty: number;
+  image?: string;
+  images?: Array<{ image_url: string }>;
 }
 
 interface Order {
@@ -28,12 +30,35 @@ export default function RiwayatPage() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterToday, setFilterToday] = useState(true);
 
   const [reviewModal, setReviewModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{orderId: number, product: OrderItem} | null>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+
+  const getImageUrl = (item: OrderItem) => {
+    const url = item.images?.[0]?.image_url || item.image || '';
+    if (!url) return '';
+    if (url.startsWith('/storage/')) {
+      const host = typeof window !== 'undefined' 
+        ? (window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname) 
+        : '127.0.0.1';
+      return `http://${host}:8000${url}`;
+    }
+    if (!url.startsWith('http') && !url.startsWith('/')) return `/${url}`;
+    return url;
+  };
+
+  const filteredOrders = orders.filter(o => {
+    if (filterToday) {
+      const orderDate = new Date(o.created_at).toDateString();
+      const todayDate = new Date().toDateString();
+      return orderDate === todayDate;
+    }
+    return true;
+  });
 
   const handleOpenReview = (orderId: number, product: OrderItem) => {
     setSelectedItem({ orderId, product });
@@ -107,12 +132,14 @@ export default function RiwayatPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'Completed':
       case 'Selesai':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-sm font-medium">
             <CheckCircle2 size={14} /> Completed
           </span>
         );
+      case 'Processing':
       case 'Diproses':
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-sm font-medium">
@@ -125,6 +152,8 @@ export default function RiwayatPage() {
             <Clock size={14} /> Pending
           </span>
         );
+      case 'Cancelled':
+      case 'Failed':
       case 'Dibatalkan':
       case 'Gagal':
         return (
@@ -179,7 +208,7 @@ export default function RiwayatPage() {
           <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-10 lg:py-16">
           
           {/* Simple Page Header */}
-          <div className="border-b border-white/10 pb-6 mb-8 flex items-center justify-between">
+          <div className="border-b border-white/10 pb-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-white mb-2 flex items-center gap-2 tracking-tight">
                 <ReceiptText className="text-amber-500" size={24} />
@@ -188,6 +217,22 @@ export default function RiwayatPage() {
               <p className="text-white/50 text-sm">
                 Manage and monitor all your previous coffee purchases.
               </p>
+            </div>
+
+            {/* Today vs All Filter Toggle for Customer */}
+            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 text-xs font-bold self-start sm:self-center">
+              <button
+                onClick={() => setFilterToday(true)}
+                className={`px-4 py-2 rounded-lg transition-all ${filterToday ? 'bg-amber-500 text-black shadow-md shadow-amber-500/10' : 'text-zinc-400 hover:text-white'}`}
+              >
+                Today
+              </button>
+              <button
+                onClick={() => setFilterToday(false)}
+                className={`px-4 py-2 rounded-lg transition-all ${!filterToday ? 'bg-amber-500 text-black shadow-md shadow-amber-500/10' : 'text-zinc-400 hover:text-white'}`}
+              >
+                All History
+              </button>
             </div>
           </div>
 
@@ -208,9 +253,23 @@ export default function RiwayatPage() {
                 Order Coffee
               </a>
             </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="py-16 text-center bg-black/30 backdrop-blur-xl border border-white/5 rounded-2xl flex flex-col items-center shadow-lg">
+              <Clock className="text-white/20 mb-3" size={36} />
+              <h3 className="text-lg font-bold text-white mb-1">No Orders Today</h3>
+              <p className="text-white/40 text-xs mb-4">
+                You haven&apos;t placed any orders today.
+              </p>
+              <button 
+                onClick={() => setFilterToday(false)}
+                className="text-xs px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg border border-white/10 transition-colors font-bold"
+              >
+                View All History
+              </button>
+            </div>
           ) : (
             <div className="space-y-5">
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
                 <div key={order.id} className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 shadow-xl group">
                   
                   {/* Header Information List */}
@@ -239,7 +298,7 @@ export default function RiwayatPage() {
                     </div>
                     
                     <div className="flex items-center sm:justify-end text-white/40">
-                      {order.status === 'Selesai' && (
+                      {(order.status === 'Completed' || order.status === 'Selesai') && (
                         <a href={`/invoice/${order.id}`} target="_blank" className="text-xs mr-4 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded-md transition-colors flex items-center gap-1.5">
                           <ReceiptText size={14} /> Print Receipt
                         </a>
@@ -254,8 +313,18 @@ export default function RiwayatPage() {
                       {order.items.map((item, idx) => (
                         <li key={idx} className="flex justify-between items-center py-3 first:pt-0 last:pb-0">
                           <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-gradient-to-br from-neutral-800 to-black text-amber-500 border border-white/5 rounded-lg flex items-center justify-center font-bold text-lg shadow-inner">
-                              {item.name.charAt(0)}
+                            <div className="w-12 h-12 relative rounded-xl overflow-hidden border border-white/10 shadow-md bg-neutral-900 flex-shrink-0 flex items-center justify-center">
+                              {getImageUrl(item) ? (
+                                <img 
+                                  src={getImageUrl(item)} 
+                                  alt={item.name} 
+                                  className="w-full h-full object-cover" 
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-black text-amber-500 flex items-center justify-center font-bold text-lg shadow-inner">
+                                  {item.name.charAt(0)}
+                                </div>
+                              )}
                             </div>
                             <div className="flex flex-col">
                               <span className="text-sm font-bold text-white/90">{item.name}</span>
@@ -266,7 +335,7 @@ export default function RiwayatPage() {
                             <div className="text-sm font-bold text-white/80">
                               Rp {(item.qty * item.price).toLocaleString()}
                             </div>
-                            {order.status === 'Selesai' && (!order.reviews || !order.reviews.some(r => r.product_id === item.id)) && (
+                            {(order.status === 'Completed' || order.status === 'Selesai') && (!order.reviews || !order.reviews.some(r => r.product_id === item.id)) && (
                               <button 
                                 onClick={() => handleOpenReview(order.id, item)}
                                 className="text-[10px] uppercase font-bold tracking-wider px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-full hover:bg-amber-500 hover:text-black transition-colors"

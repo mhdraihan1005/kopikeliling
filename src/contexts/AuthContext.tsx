@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: true };
     } catch (error) {
       console.error("Login failed", error);
-      return { success: false, message: "Terjadi kesalahan pada server." };
+      return { success: false, message: "A server error occurred." };
     }
   };
 

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->integer('total_price');
             $table->json('items');
-            $table->string('status')->default('Selesai');
+            $table->string('status')->default('Completed');
             $table->timestamps();
         });
     }

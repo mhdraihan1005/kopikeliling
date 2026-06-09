@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Coffee, ShoppingCart, User, LogOut, ChevronDown } from "lucide-react";
+import { Coffee, ShoppingCart, User, LogOut, ChevronDown, Bell, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
@@ -18,19 +18,111 @@ export default function CustomerNavbar() {
   const { user, logout } = useAuth();
   const { cart } = useCart();
 
+  // Polling for completed orders to show notifications
+  const [seenCompletedIds, setSeenCompletedIds] = useState<number[]>([]);
+  const seenCompletedIdsRef = useRef<number[]>([]);
+  const toastedOrderIdsRef = useRef<number[]>([]);
+  const isFirstFetch = useRef(true);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifMenu, setShowNotifMenu] = useState(false);
+
+  // Load seen completed order IDs from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("seen_completed_orders");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setSeenCompletedIds(parsed);
+        seenCompletedIdsRef.current = parsed;
+      } catch (e) {
+        console.error("Failed to parse seen_completed_orders", e);
+      }
+    }
+  }, []);
+
+  const checkCompletedOrders = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/orders?user_id=${user.id}`);
+      if (res.ok) {
+        const orders = await res.json();
+        const completedOrders = orders.filter((o: any) => o.status === "Completed" || o.status === "Selesai");
+        
+        if (isFirstFetch.current) {
+          // First fetch: initialize toasted list with all current completed orders
+          toastedOrderIdsRef.current = completedOrders.map((o: any) => o.id);
+          isFirstFetch.current = false;
+        } else {
+          // Subsequent fetches: check if there's any new completed order
+          let hasNewCompleted = false;
+          completedOrders.forEach((order: any) => {
+            if (!toastedOrderIdsRef.current.includes(order.id)) {
+              toastedOrderIdsRef.current.push(order.id);
+              hasNewCompleted = true;
+              toast.success(`Order #ORD-${order.id.toString().padStart(4, '0')} has been completed! Please enjoy your coffee.`, {
+                icon: '☕',
+                duration: 8000,
+              });
+            }
+          });
+          
+          if (hasNewCompleted) {
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.play().catch(e => console.log("Audio play failed", e));
+          }
+        }
+
+        // Filter notifications (completed orders not yet seen by the user)
+        const unseenOrders = completedOrders.filter(
+          (o: any) => !seenCompletedIdsRef.current.includes(o.id)
+        );
+        setNotifications(unseenOrders);
+      }
+    } catch (error) {
+      console.error("Failed to fetch order status notifications", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      checkCompletedOrders();
+      const interval = setInterval(checkCompletedOrders, 15000); // Poll every 15 seconds
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  const markAsSeen = (id: number) => {
+    const updatedSeen = [...seenCompletedIds, id];
+    setSeenCompletedIds(updatedSeen);
+    seenCompletedIdsRef.current = updatedSeen;
+    localStorage.setItem("seen_completed_orders", JSON.stringify(updatedSeen));
+    
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  const markAllAsSeen = () => {
+    const allIds = notifications.map(n => n.id);
+    const updatedSeen = [...seenCompletedIds, ...allIds];
+    setSeenCompletedIds(updatedSeen);
+    seenCompletedIdsRef.current = updatedSeen;
+    localStorage.setItem("seen_completed_orders", JSON.stringify(updatedSeen));
+    
+    setNotifications([]);
+  };
+
   const totalItems = cart.reduce((acc: number, item: any) => acc + (item.qty || 1), 0);
 
   const handleLogout = () => {
     logout();
     setShowUserMenu(false);
-    toast.success("Berhasil keluar dari akun!");
+    toast.success("Successfully logged out!");
     router.push("/login");
   };
 
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Menu", href: "/menu" },
-    { name: "My Orders", href: "/riwayat" },
+    ...(user ? [{ name: "My Orders", href: "/riwayat" }] : []),
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -103,6 +195,80 @@ export default function CustomerNavbar() {
 
         {/* Mobile & Cart Buttons */}
         <div className="flex items-center gap-3">
+          {/* Notification Bell (Only if user is logged in) */}
+          {user && (
+            <div className="relative">
+              <button 
+                onClick={() => { setShowNotifMenu(!showNotifMenu); setShowUserMenu(false); }}
+                className={`relative p-2 rounded-xl transition-all ${showNotifMenu ? 'bg-amber-500/10 text-amber-500' : 'text-zinc-300 hover:text-white hover:bg-zinc-700/50'}`}
+              >
+                <Bell size={20} />
+                {notifications.length > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-amber-500 text-black text-[9px] font-black flex items-center justify-center rounded-full border border-[#333333]">
+                    {notifications.length}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown */}
+              {showNotifMenu && (
+                <div className="absolute right-0 mt-3 w-80 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-2xl">
+                  <div className="px-5 py-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                    <h3 className="font-bold text-sm text-white">Notifications</h3>
+                    {notifications.length > 0 && (
+                      <button 
+                        onClick={markAllAsSeen}
+                        className="text-[10px] text-amber-500 hover:text-amber-400 font-bold uppercase tracking-wider transition-colors"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      notifications.map((notif) => (
+                        <div 
+                          key={notif.id} 
+                          onClick={() => { 
+                            markAsSeen(notif.id);
+                            router.push('/riwayat'); 
+                            setShowNotifMenu(false); 
+                          }}
+                          className="px-5 py-4 border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors group"
+                        >
+                          <div className="flex items-start gap-4">
+                             <div className="bg-amber-500/10 p-2 rounded-lg group-hover:bg-amber-500 group-hover:text-black transition-all">
+                                <Coffee size={16} className="text-amber-500 group-hover:text-black" />
+                             </div>
+                             <div className="flex-1">
+                                <p className="text-xs text-white font-bold leading-none mb-1">Order #ORD-{notif.id.toString().padStart(4, '0')} Completed</p>
+                                <p className="text-[10px] text-zinc-500 line-clamp-1">Total: Rp {Number(notif.total_price).toLocaleString()}</p>
+                                <div className="flex items-center gap-1.5 mt-2 text-[9px] text-zinc-600 font-bold uppercase">
+                                   <Clock size={10} /> Completed
+                                </div>
+                             </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-10 text-center flex flex-col items-center gap-3">
+                         <Bell size={32} className="text-zinc-800" />
+                         <p className="text-xs text-zinc-500 italic">No new notifications</p>
+                      </div>
+                    )}
+                  </div>
+                  <Link 
+                    href="/riwayat" 
+                    onClick={() => setShowNotifMenu(false)}
+                    className="block text-center py-3 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
+                  >
+                    View Order History
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Cart Icon (Always Visible) */}
           <button 
             onClick={() => setIsCartOpen(true)}
@@ -184,8 +350,8 @@ export default function CustomerNavbar() {
       {/* Render Cart Sidebar */}
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
-      {showUserMenu && (
-        <div className="fixed inset-0 z-30" onClick={() => setShowUserMenu(false)} />
+      {(showUserMenu || showNotifMenu) && (
+        <div className="fixed inset-0 z-30" onClick={() => { setShowUserMenu(false); setShowNotifMenu(false); }} />
       )}
     </nav>
   );

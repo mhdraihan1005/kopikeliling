@@ -39,7 +39,7 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
-          <p className="text-white mt-2">Memeriksa autentikasi...</p>
+          <p className="text-white mt-2">Checking authentication...</p>
         </div>
       </div>
     );

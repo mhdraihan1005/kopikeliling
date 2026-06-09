@@ -17,9 +17,13 @@ export default function Home() {
           <div className="relative z-10 flex flex-col items-center text-center max-w-6xl mx-auto w-full">
           
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 border border-white/20 backdrop-blur-md mb-8">
-            <ShieldCheck size={16} className="text-amber-400" />
-            <span className="text-white/80 text-sm font-semibold tracking-wider uppercase">5-Star Cafe Quality Standards</span>
+          <div className="inline-flex flex-col sm:flex-row items-center gap-2 px-4 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 backdrop-blur-md mb-8 text-xs">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-amber-400" />
+              <span className="text-amber-400 font-black tracking-wider uppercase">NEW MEMBER SPECIAL</span>
+            </div>
+            <span className="hidden sm:inline text-white/20">|</span>
+            <span className="text-white/80 font-medium">Register today to get a <span className="text-amber-400 font-bold">20% Welcome Discount</span> on your first order!</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">

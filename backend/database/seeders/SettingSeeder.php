@@ -11,7 +11,7 @@ class SettingSeeder extends Seeder
     {
         $settings = [
             'shop_name' => 'E-Coffee Keliling',
-            'shop_address' => 'Jl. Kopi No. 123, Jakarta',
+            'shop_address' => '123 Coffee St, Jakarta, Indonesia',
             'shop_phone' => '08123456789',
             'shop_instagram' => '@ecoffee.keliling',
             'shop_status' => 'open', // open or closed
