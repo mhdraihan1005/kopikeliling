@@ -132,27 +132,26 @@ export default function CustomerNavbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
 
         {/* Logo */}
-        <div className="flex items-center gap-2 font-bold text-white text-xl">
-          <Coffee size={24} className="text-amber-500" />
-          <span className="tracking-tight hidden sm:block">Kopi<span className="text-amber-500">Kuy!</span></span>
-          <span className="tracking-tight sm:hidden text-amber-500">Kuy!</span>
-        </div>
+        <Link href="/" className="flex items-center hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+          <img src="/logo.png" alt="Kopi Kuy Logo" className="h-14 w-auto object-contain" />
+        </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-2 text-sm">
+        <div className="hidden md:flex items-center gap-6 text-sm">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-lg px-4 py-1.5 font-medium transition-all ${
-                  isActive
-                    ? "bg-zinc-500/50 text-white"
-                    : "text-zinc-300 hover:text-white"
-                }`}
+                className="relative py-2 px-0.5 font-bold tracking-wide transition-all duration-300 group"
               >
-                {link.name}
+                <span className={isActive ? "text-amber-500" : "text-zinc-300 group-hover:text-white transition-colors duration-300"}>
+                  {link.name}
+                </span>
+                <span className={`absolute bottom-0 left-0 h-[2px] bg-amber-500 transition-all duration-300 ${
+                  isActive ? "w-full opacity-100" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-60"
+                }`} />
               </Link>
             );
           })}

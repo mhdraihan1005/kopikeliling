@@ -45,10 +45,7 @@ export default function RegisterPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />
         
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-12 h-12 bg-amber-600/20 backdrop-blur-sm border border-amber-500/50 rounded-xl flex items-center justify-center">
-            <Coffee size={24} className="text-amber-500" />
-          </div>
-          <span className="text-xl font-bold text-white tracking-widest uppercase">KopiKuy</span>
+          <img src="/logo.png" alt="Kopi Kuy Logo" className="h-20 w-auto object-contain" />
         </div>
 
         <div className="relative z-10 max-w-lg mb-12">
@@ -76,8 +73,8 @@ export default function RegisterPage() {
         {/* Container Form */}
         <div className="w-full max-w-sm relative z-10">
           <div className="flex flex-col items-center lg:items-start mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center mb-6 lg:hidden shadow-lg shadow-amber-600/30">
-              <Coffee size={32} className="text-white" />
+            <div className="mb-6 lg:hidden">
+              <img src="/logo.png" alt="Kopi Kuy Logo" className="h-24 w-auto object-contain" />
             </div>
             <h2 className="text-3xl font-bold text-white mb-2 text-center lg:text-left">Register New Account</h2>
             <p className="text-zinc-400 text-center lg:text-left text-sm">Fill in the data below to join.</p>

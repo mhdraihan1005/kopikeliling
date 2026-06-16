@@ -13,7 +13,7 @@ export default function CartSidebar({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const { cart, updateQty, removeFromCart } = useCart();
+  const { cart, updateQty, removeFromCart, clearCart } = useCart();
   const { user } = useAuth();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [fulfillmentType, setFulfillmentType] = useState<"Dine In" | "Pickup">("Dine In");
@@ -99,14 +99,14 @@ export default function CartSidebar({
               console.error('Failed to update status', e);
             }
             toast.success("Payment Successful! Order is being processed.");
-            cart.forEach((item: any) => removeFromCart(item.id));
+            clearCart();
             setTimeout(() => {
               window.location.href = redirectUrl;
             }, 1000);
           },
           onPending: function (result: any) {
             toast.success("Waiting for your payment!");
-            cart.forEach((item: any) => removeFromCart(item.id));
+            clearCart();
             setTimeout(() => {
               window.location.href = redirectUrl;
             }, 1000);
@@ -118,7 +118,7 @@ export default function CartSidebar({
           onClose: function () {
             toast.error("You have not completed the payment");
             setIsCheckingOut(false);
-            cart.forEach((item: any) => removeFromCart(item.id)); // also empty since order already created in DB
+            clearCart(); // also empty since order already created in DB
             setTimeout(() => {
               window.location.href = redirectUrl;
             }, 1000);

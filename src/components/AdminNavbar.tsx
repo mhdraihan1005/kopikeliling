@@ -112,12 +112,12 @@ export default function AdminNavbar() {
         {/* Left Section: Brand & Search */}
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-3 group cursor-pointer" onClick={() => router.push('/admin')}>
-            <div className="bg-gradient-to-br from-amber-500 to-amber-700 p-2 rounded-xl shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              <Coffee size={22} strokeWidth={2.5} className="text-white" />
+            <div className="group-hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+              <img src="/logo.png" alt="Kopi Kuy Logo" className="h-14 w-auto object-contain" />
             </div>
             <div className="flex flex-col">
-               <span className="text-lg font-black tracking-tight leading-none">Kopi<span className="text-amber-500">Kuy!</span></span>
-               <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Management</span>
+               <span className="text-xs font-black text-white uppercase tracking-widest leading-none">Management</span>
+               <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Dashboard</span>
             </div>
           </div>
 

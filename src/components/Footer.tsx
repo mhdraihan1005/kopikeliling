@@ -12,10 +12,9 @@ export default function Footer() {
           
           {/* Brand Column */}
           <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center gap-2 text-white font-bold text-2xl mb-6">
-              <Coffee className="text-amber-500" size={28} />
-              <span className="tracking-tight">Kopi<span className="text-amber-500">Kuy!</span></span>
-            </div>
+            <Link href="/" className="flex items-center mb-6 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+              <img src="/logo.png" alt="Kopi Kuy Logo" className="h-16 w-auto object-contain" />
+            </Link>
             <p className="text-sm leading-relaxed mb-6 italic">
               &quot;The best brew, delivered directly to you. Coffee made simple, with KopiKuy!&quot;
             </p>
