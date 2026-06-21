@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen selection:bg-amber-500/30">
-      <CustomerNavbar />
+        <CustomerNavbar />
 
       <main className="flex-1 relative flex flex-col items-center justify-center px-6 py-20 lg:py-32 overflow-hidden">
         <PageTransition variant="slideUp">

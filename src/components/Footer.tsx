@@ -1,9 +1,36 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Coffee, Mail, MapPin, Phone, Globe } from "lucide-react";
 import { FaInstagram, FaGithub } from "react-icons/fa";
 import Link from "next/link";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [settings, setSettings] = useState({
+    shop_name: "KopiKuy!",
+    shop_address: "Batam Area & Surroundings",
+    shop_phone: "+62 896-6846-8181",
+    shop_instagram: "@ecoffee.keliling",
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/settings");
+        if (res.ok) {
+          const data = await res.json();
+          setSettings(prev => ({ ...prev, ...data }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch settings", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   return (
     <footer className="bg-[#1a1a1a] text-zinc-400 pt-16 pb-8 border-t border-zinc-800">
@@ -19,7 +46,12 @@ export default function Footer() {
               &quot;The best brew, delivered directly to you. Coffee made simple, with KopiKuy!&quot;
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all duration-300">
+              <a 
+                href={`https://instagram.com/${settings.shop_instagram?.replace('@', '') || 'ecoffee.keliling'}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all duration-300"
+              >
                 <FaInstagram size={18} />
               </a>
               <a href="#" className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all duration-300">
@@ -47,11 +79,11 @@ export default function Footer() {
             <ul className="space-y-4 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin size={16} className="text-amber-500 shrink-0 mt-0.5" />
-                <span>Batam Area & Surroundings</span>
+                <span>{settings.shop_address}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={16} className="text-amber-500 shrink-0" />
-                <span>+62 896-6846-8181</span>
+                <span>{settings.shop_phone}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={16} className="text-amber-500 shrink-0" />
@@ -64,7 +96,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] tracking-wider uppercase">
-          <p className="text-zinc-500">© {currentYear} <span className="text-zinc-300 font-bold">KopiKuy!</span> All Rights Reserved.</p>
+          <p className="text-zinc-500">© {currentYear} <span className="text-zinc-300 font-bold">{settings.shop_name}</span> All Rights Reserved.</p>
           <div className="text-zinc-600 text-[10px]">
             Perfect for every moment.
           </div>
