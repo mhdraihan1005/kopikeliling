@@ -17,10 +17,16 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem("token");
+        const headers: any = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
         const [ordersRes, productsRes, usersRes] = await Promise.all([
-          fetch("http://127.0.0.1:8000/api/orders"),
-          fetch("http://127.0.0.1:8000/api/products"),
-          fetch("http://127.0.0.1:8000/api/users"),
+          fetch("http://127.0.0.1:8000/api/orders", { headers }),
+          fetch("http://127.0.0.1:8000/api/products", { headers }),
+          fetch("http://127.0.0.1:8000/api/users", { headers }),
         ]);
         
         const ordersData = ordersRes.ok ? await ordersRes.json() : [];

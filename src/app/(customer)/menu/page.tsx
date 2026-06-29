@@ -41,7 +41,26 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isShopClosed, setIsShopClosed] = useState(false);
   const { addToCart } = useCart();
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const host = typeof window !== 'undefined' 
+          ? (window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname) 
+          : '127.0.0.1';
+        const res = await fetch(`http://${host}:8000/api/settings`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsShopClosed(data.shop_status === "closed");
+        }
+      } catch (error) {
+        console.error("Failed to fetch settings:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   useEffect(() => {
     const loadMenu = async () => {
@@ -89,10 +108,19 @@ export default function MenuPage() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight">
               Explore Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">Coffee Selection</span>
             </h1>
-            <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
               Find your favorite flavor profile from our curated coffee beans.
               Every cup is precisely crafted by professional baristas.
             </p>
+
+            {isShopClosed && (
+              <div className="p-5 bg-gradient-to-r from-rose-950/40 to-red-950/40 border border-rose-500/20 rounded-3xl text-center max-w-2xl mx-auto shadow-xl shadow-rose-950/10 backdrop-blur-md animate-pulse">
+                <h3 className="text-rose-400 font-black text-lg mb-1">Our Shop is Currently Closed</h3>
+                <p className="text-rose-200/70 text-xs">
+                  We are currently not accepting new orders. You can still browse our menu, and we will be back soon!
+                </p>
+              </div>
+            )}
           </div>
 
           {loading ? (
@@ -139,7 +167,7 @@ export default function MenuPage() {
               {/* Menu Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8">
                 {filteredMenu.map((item) => (
-                  <MenuCard key={item.id} item={item} addToCart={addToCart} getImageUrl={getImageUrl} />
+                  <MenuCard key={item.id} item={item} addToCart={addToCart} getImageUrl={getImageUrl} isShopClosed={isShopClosed} />
                 ))}
               </div>
 
@@ -184,7 +212,7 @@ function Spinner(props: any) {
   );
 }
 
-function MenuCard({ item, addToCart, getImageUrl }: { item: MenuItem, addToCart: any, getImageUrl: (url: string) => string }) {
+function MenuCard({ item, addToCart, getImageUrl, isShopClosed }: { item: MenuItem, addToCart: any, getImageUrl: (url: string) => string, isShopClosed?: boolean }) {
   const [activeImageIdx, setActiveImageIdx] = useState(0);
 
   return (
@@ -261,15 +289,15 @@ function MenuCard({ item, addToCart, getImageUrl }: { item: MenuItem, addToCart:
             </span>
           </div>
           <button 
-            onClick={() => item.stock > 0 && addToCart(item)} 
-            disabled={item.stock <= 0}
+            onClick={() => item.stock > 0 && !isShopClosed && addToCart(item)} 
+            disabled={item.stock <= 0 || isShopClosed}
             className={`w-full sm:w-auto px-3 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-[10px] sm:text-sm transition-all ${
-              item.stock > 0 
+              item.stock > 0 && !isShopClosed
                 ? "bg-amber-600 text-white hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-500/20 active:scale-95" 
                 : "bg-white/10 text-white/30 cursor-not-allowed"
             }`}
           >
-            {item.stock > 0 ? "Order" : "Out of Stock"}
+            {isShopClosed ? "Closed" : item.stock > 0 ? "Order" : "Out of Stock"}
           </button>
         </div>
       </div>

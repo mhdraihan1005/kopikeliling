@@ -15,7 +15,10 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/orders");
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://127.0.0.1:8000/api/orders", {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {},
+      });
       if (res.ok) {
         const data = await res.json();
         setOrders(data);
@@ -33,9 +36,13 @@ export default function AdminOrdersPage() {
 
   const handleUpdateStatus = async (id: number, newStatus: string) => {
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(`http://127.0.0.1:8000/api/orders/${id}/status`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ status: newStatus }),
       });
 
@@ -187,6 +194,7 @@ export default function AdminOrdersPage() {
                 <tr className="bg-white/[0.02] text-zinc-500 text-[11px] uppercase tracking-widest border-b border-white/5">
                   <th className="p-5 font-black">Order ID</th>
                   <th className="p-5 font-black">Customer</th>
+                  <th className="p-5 font-black">Items</th>
                   <th className="p-5 font-black">Date</th>
                   <th className="p-5 font-black">Service</th>
                   <th className="p-5 font-black">Amount</th>
@@ -217,6 +225,20 @@ export default function AdminOrdersPage() {
                             <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Guest</span>
                           </div>
                         )}
+                      </td>
+                      <td className="p-5 text-sm">
+                        <div className="flex flex-col gap-1.5 max-w-[200px]">
+                          {order.items?.map((item: any) => (
+                            <div key={item.id} className="flex items-center gap-1.5">
+                              <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0">
+                                {item.qty || item.quantity}x
+                              </span>
+                              <span className="font-semibold text-zinc-200 text-xs truncate">
+                                {item.name || "Unknown Product"}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </td>
                       <td className="p-5 text-zinc-500 text-sm">
                         {formattedDate}
@@ -254,7 +276,7 @@ export default function AdminOrdersPage() {
                 })}
                 {filteredOrders.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="p-12 text-center text-zinc-500 italic">No orders found matching your search.</td>
+                    <td colSpan={9} className="p-12 text-center text-zinc-500 italic">No orders found matching your search.</td>
                   </tr>
                 )}
               </tbody>

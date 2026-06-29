@@ -10,35 +10,44 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SettingController;
 
-Route::get('/settings', [SettingController::class, 'index']);
-Route::post('/settings', [SettingController::class, 'update']);
-
+// 1. Public Routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/products', [ProductController::class, 'index']);
-Route::post('/products', [ProductController::class, 'store']);
-Route::put('/products/{id}', [ProductController::class, 'update']);
-Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-Route::delete('/product-images/{id}', [ProductController::class, 'deleteImage']);
-Route::post('/reviews', [ReviewController::class, 'store']);
 Route::get('/reviews', [ReviewController::class, 'index']);
-Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 
-Route::get('/users', [UserController::class, 'index']);
-Route::post('/users', [UserController::class, 'store']);
-Route::put('/users/{id}', [UserController::class, 'update']);
-Route::delete('/users/{id}', [UserController::class, 'destroy']);
-
-Route::get('/orders', [OrderController::class, 'index']);
-Route::get('/orders/{id}', [OrderController::class, 'show']);
+Route::post('/reviews', [ReviewController::class, 'store']);
 Route::post('/orders', [OrderController::class, 'store']);
+Route::get('/orders/{id}', [OrderController::class, 'show']);
 Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 Route::post('/webhook/midtrans', [OrderController::class, 'handleWebhook']);
 
-Route::middleware('auth:sanctum')->group(function () {
+// 2. Authenticated Routes (Customers & Admins)
+Route::middleware('api.auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return auth()->user();
+    });
+
+    // 3. Admin Only Routes
+    Route::middleware('api.admin')->group(function () {
+        Route::post('/settings', [SettingController::class, 'update']);
+        
+        Route::post('/products', [ProductController::class, 'store']);
+        Route::put('/products/{id}', [ProductController::class, 'update']);
+        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+        Route::delete('/product-images/{id}', [ProductController::class, 'deleteImage']);
+        
+        Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+
+        Route::get('/users', [UserController::class, 'index']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::put('/users/{id}', [UserController::class, 'update']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
     });
 });
+
 

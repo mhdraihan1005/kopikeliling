@@ -45,7 +45,10 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
 
     const fetchOrder = async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/orders/${params.id}`);
+        const token = localStorage.getItem("token");
+        const res = await fetch(`http://127.0.0.1:8000/api/orders/${params.id}`, {
+          headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        });
         if (!res.ok) throw new Error("Order not found");
         const data = await res.json();
         
@@ -86,14 +89,22 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
     window.snap.pay(order.snap_token, {
       onSuccess: async function (result: any) {
         try {
+          const token = localStorage.getItem("token");
+          const headers: any = { "Content-Type": "application/json" };
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+          
           await fetch(`http://127.0.0.1:8000/api/orders/${order.id}/status`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: headers,
             body: JSON.stringify({ payment_status: 'Paid', status: 'Processing' }),
           });
           toast.success("Payment Successful! Order is being processed.");
           // Refresh order status
-          const res = await fetch(`http://127.0.0.1:8000/api/orders/${order.id}`);
+          const res = await fetch(`http://127.0.0.1:8000/api/orders/${order.id}`, {
+            headers: token ? { "Authorization": `Bearer ${token}` } : {}
+          });
           if (res.ok) {
             const data = await res.json();
             setOrder(data);
@@ -103,7 +114,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
         }
       },
       onPending: function (result: any) {
-        toast.success("Waiting for your payment!");
+        toast("Waiting for your payment!", { icon: "⏳" });
       },
       onError: function (result: any) {
         toast.error("Payment Failed!");

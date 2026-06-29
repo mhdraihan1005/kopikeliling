@@ -20,7 +20,10 @@ export default function AdminSettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/settings");
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://127.0.0.1:8000/api/settings", {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {},
+      });
       if (res.ok) {
         const data = await res.json();
         setSettings(prev => ({ ...prev, ...data }));
@@ -40,9 +43,13 @@ export default function AdminSettingsPage() {
     e.preventDefault();
     setSaving(true);
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch("http://127.0.0.1:8000/api/settings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify(settings),
       });
 

@@ -11,7 +11,10 @@ export default function AdminReportsPage() {
   
   const fetchOrders = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/orders");
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://127.0.0.1:8000/api/orders", {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {},
+      });
       if (res.ok) {
         const data = await res.json();
         setOrders(data);
@@ -46,6 +49,14 @@ export default function AdminReportsPage() {
     
     if (filterDate === "month") {
       return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+    }
+
+    if (filterDate === "year") {
+      return orderDate.getFullYear() === now.getFullYear();
+    }
+
+    if (filterDate === "last_year") {
+      return orderDate.getFullYear() === now.getFullYear() - 1;
     }
     
     return true;
@@ -148,20 +159,33 @@ export default function AdminReportsPage() {
           revenueMap[slot] += Number(o.total_price);
         }
       });
-    } else {
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date();
-        d.setMonth(d.getMonth() - i);
-        const monthLabel = getMonthName(d);
-        revenueMap[monthLabel] = 0;
-        labels.push(monthLabel);
-      }
+    } else if (filterDate === "year" || filterDate === "last_year") {
+      const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      monthsOfYear.forEach(m => {
+        revenueMap[m] = 0;
+        labels.push(m);
+      });
 
       filteredOrders.forEach(o => {
         if (o.status === 'Completed' || o.payment_status === 'Paid') {
-          const monthLabel = getMonthName(new Date(o.created_at));
-          if (revenueMap[monthLabel] !== undefined) {
-            revenueMap[monthLabel] += Number(o.total_price);
+          const mLabel = monthsOfYear[new Date(o.created_at).getMonth()];
+          if (revenueMap[mLabel] !== undefined) {
+            revenueMap[mLabel] += Number(o.total_price);
+          }
+        }
+      });
+    } else {
+      const yearsList = ["2024", "2025", "2026"];
+      yearsList.forEach(y => {
+        revenueMap[y] = 0;
+        labels.push(y);
+      });
+
+      filteredOrders.forEach(o => {
+        if (o.status === 'Completed' || o.payment_status === 'Paid') {
+          const yLabel = new Date(o.created_at).getFullYear().toString();
+          if (revenueMap[yLabel] !== undefined) {
+            revenueMap[yLabel] += Number(o.total_price);
           }
         }
       });
@@ -356,6 +380,8 @@ export default function AdminReportsPage() {
               <option value="today">Today</option>
               <option value="week">Last 7 Days</option>
               <option value="month">This Month</option>
+              <option value="year">This Year</option>
+              <option value="last_year">Last Year (2025)</option>
             </select>
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500" size={18} />
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />

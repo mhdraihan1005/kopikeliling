@@ -42,11 +42,12 @@ class UserController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,'.$id,
             'role' => 'nullable|in:admin,customer',
-            'is_active' => 'nullable|boolean'
+            'is_active' => 'nullable|boolean',
+            'password' => 'sometimes|required|string|min:8'
         ]);
 
         if ($request->has('password')) {
-            $validated['password'] = Hash::make($request->password);
+            $validated['password'] = Hash::make($validated['password']);
         }
 
         $user->update($validated);

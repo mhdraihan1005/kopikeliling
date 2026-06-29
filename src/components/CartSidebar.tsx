@@ -20,6 +20,22 @@ export default function CartSidebar({
   const [tableNumber, setTableNumber] = useState("");
   const [guestName, setGuestName] = useState("");
   const [isNewUser, setIsNewUser] = useState(false);
+  const [isShopClosed, setIsShopClosed] = useState(false);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/settings");
+        if (res.ok) {
+          const data = await res.json();
+          setIsShopClosed(data.shop_status === "closed");
+        }
+      } catch (e) {
+        console.error("Failed to fetch settings", e);
+      }
+    };
+    fetchSettings();
+  }, [isOpen]);
 
   useEffect(() => {
     const checkNewUser = async () => {
@@ -73,9 +89,13 @@ export default function CartSidebar({
         guest_name: user ? null : guestName,
       };
 
+      const token = localStorage.getItem("token");
       const res = await fetch("http://127.0.0.1:8000/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify(orderPayload),
       });
 
@@ -90,9 +110,13 @@ export default function CartSidebar({
         window.snap.pay(data.snap_token, {
           onSuccess: async function (result: any) {
             try {
+              const token = localStorage.getItem("token");
               await fetch(`http://127.0.0.1:8000/api/orders/${data.order.id}/status`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                  "Content-Type": "application/json",
+                  ...(token ? { "Authorization": `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({ payment_status: 'Paid', status: 'Processing' }),
               });
             } catch (e) {
@@ -105,7 +129,7 @@ export default function CartSidebar({
             }, 1000);
           },
           onPending: function (result: any) {
-            toast.success("Waiting for your payment!");
+            toast("Waiting for your payment!", { icon: "⏳" });
             clearCart();
             setTimeout(() => {
               window.location.href = redirectUrl;
@@ -136,6 +160,26 @@ export default function CartSidebar({
     } finally {
       setIsCheckingOut(false);
     }
+  };
+
+  const getItemImageUrl = (item: any) => {
+    let url = "";
+    if (item.images && item.images.length > 0) {
+      url = item.images[0].image_url;
+    } else if (item.image) {
+      url = item.image;
+    }
+    
+    if (!url) return null;
+    
+    if (url.startsWith('/storage/')) {
+      const host = typeof window !== 'undefined' 
+        ? (window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname) 
+        : '127.0.0.1';
+      return `http://${host}:8000${url}`;
+    }
+    if (!url.startsWith('http') && !url.startsWith('/')) return `/${url}`;
+    return url;
   };
 
   return (
@@ -184,9 +228,17 @@ export default function CartSidebar({
             <div className="flex flex-col gap-4">
               {cart.map((item: any) => (
                 <div key={item.id} className="flex gap-4 p-4 bg-white/[0.03] rounded-2xl border border-white/5 hover:border-white/10 transition-colors group">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-600 to-amber-800 flex-shrink-0 flex items-center justify-center shadow-lg shadow-amber-900/20 group-hover:scale-105 transition-transform">
-                    <span className="text-white font-black text-lg">{item.name.charAt(0)}</span>
-                  </div>
+                  {getItemImageUrl(item) ? (
+                    <img 
+                      src={getItemImageUrl(item)!} 
+                      alt={item.name} 
+                      className="w-16 h-16 rounded-xl object-cover flex-shrink-0 group-hover:scale-105 transition-transform shadow-lg shadow-black/40"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-600 to-amber-800 flex-shrink-0 flex items-center justify-center shadow-lg shadow-amber-900/20 group-hover:scale-105 transition-transform">
+                      <span className="text-white font-black text-lg">{item.name.charAt(0)}</span>
+                    </div>
+                  )}
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <h3 className="font-bold text-white tracking-tight leading-none">{item.name}</h3>
@@ -282,12 +334,19 @@ export default function CartSidebar({
               <span className="text-zinc-500 font-bold uppercase text-[10px] tracking-widest">Total Payment</span>
               <span className="text-2xl font-black text-white">Rp {finalPrice.toLocaleString()}</span>
             </div>
+
+            {isShopClosed && (
+              <div className="p-3 bg-rose-600/10 border border-rose-500/20 text-rose-500 rounded-xl text-center text-xs font-bold mb-4">
+                Sorry, we are currently closed. New orders cannot be placed.
+              </div>
+            )}
+
             <button 
               onClick={handleCheckout}
-              disabled={isCheckingOut}
-              className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 disabled:opacity-50 text-white font-black py-4 rounded-2xl shadow-xl shadow-amber-900/40 transition-all hover:-translate-y-1 active:translate-y-0"
+              disabled={isCheckingOut || isShopClosed}
+              className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 disabled:opacity-50 disabled:pointer-events-none text-white font-black py-4 rounded-2xl shadow-xl shadow-amber-900/40 transition-all hover:-translate-y-1 active:translate-y-0"
             >
-              {isCheckingOut ? "Processing..." : "Continue to Payment"}
+              {isShopClosed ? "Shop is Closed" : isCheckingOut ? "Processing..." : "Continue to Payment"}
             </button>
           </div>
         )}

@@ -45,7 +45,10 @@ export default function AdminNavbar() {
   // Fetch new orders as notifications
   const fetchNotifications = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/orders");
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://127.0.0.1:8000/api/orders", {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {}
+      });
       if (res.ok) {
         const allOrders = await res.json();
         // Filter for Pending orders (new orders) AND not seen yet

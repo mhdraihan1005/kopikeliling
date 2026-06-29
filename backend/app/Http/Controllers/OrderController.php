@@ -14,11 +14,21 @@ class OrderController extends Controller
     {
         $this->checkExpiredOrders();
 
-        $userId = $request->query('user_id');
-        if ($userId) {
-            return response()->json(Order::with(['reviews', 'user'])->where('user_id', $userId)->orderBy('created_at', 'desc')->get());
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
-        return response()->json(Order::with(['reviews', 'user'])->orderBy('created_at', 'desc')->get());
+
+        if ($user->role === 'admin') {
+            $userId = $request->query('user_id');
+            if ($userId) {
+                return response()->json(Order::with(['reviews', 'user'])->where('user_id', $userId)->orderBy('created_at', 'desc')->get());
+            }
+            return response()->json(Order::with(['reviews', 'user'])->orderBy('created_at', 'desc')->get());
+        }
+
+        // Customers can only view their own orders
+        return response()->json(Order::with(['reviews', 'user'])->where('user_id', $user->id)->orderBy('created_at', 'desc')->get());
     }
 
     private function checkExpiredOrders()
@@ -34,7 +44,7 @@ class OrderController extends Controller
             foreach ($order->items as $item) {
                 $product = Product::find($item['id']);
                 if ($product) {
-                    $product->increment('stock', $item['quantity'] ?? 1);
+                    $product->increment('stock', $item['qty'] ?? $item['quantity'] ?? 1);
                 }
             }
             
@@ -46,14 +56,30 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = Order::find($id);
-        if ($order) {
-            return response()->json($order);
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
         }
-        return response()->json(['message' => 'Order not found'], 404);
+
+        if ($order->user_id) {
+            $token = request()->bearerToken();
+            $user = $token ? \App\Models\User::where('remember_token', $token)->first() : null;
+
+            if (!$user || ($user->role !== 'admin' && $user->id != $order->user_id)) {
+                return response()->json(['message' => 'Unauthorized to view this order.'], 403);
+            }
+        }
+
+        return response()->json($order);
     }
 
     public function store(Request $request)
     {
+        $shopStatusSetting = \App\Models\Setting::where('key', 'shop_status')->first();
+        $shopStatus = $shopStatusSetting ? $shopStatusSetting->value : 'open';
+        if ($shopStatus === 'closed') {
+            return response()->json(['message' => 'Ordering is temporarily disabled. The shop is currently closed.'], 403);
+        }
+
         $request->validate([
             'user_id' => 'nullable|integer',
             'total_price' => 'required|integer',
@@ -62,6 +88,15 @@ class OrderController extends Controller
             'table_number' => 'required_if:fulfillment_type,Dine In|nullable|string',
             'guest_name' => 'required_without:user_id|nullable|string'
         ]);
+
+        if ($request->user_id) {
+            $token = $request->bearerToken();
+            $user = $token ? \App\Models\User::where('remember_token', $token)->first() : null;
+
+            if (!$user || $user->id != $request->user_id) {
+                return response()->json(['message' => 'Unauthorized user_id.'], 403);
+            }
+        }
 
         // Calculate subtotal from database prices to verify total and apply discount securely
         $subtotal = 0;
@@ -105,7 +140,7 @@ class OrderController extends Controller
         foreach ($request->items as $item) {
             $product = Product::find($item['id']);
             if ($product) {
-                $product->decrement('stock', $item['quantity'] ?? 1);
+                $product->decrement('stock', $item['qty'] ?? $item['quantity'] ?? 1);
             }
         }
 
@@ -177,16 +212,35 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $order = Order::find($id);
-        if ($order) {
-            if ($request->has('status')) {
-                $order->status = $request->status;
-            }
-            if ($request->has('payment_status')) {
-                $order->payment_status = $request->payment_status;
-            }
-            $order->save();
-            return response()->json(['message' => 'Status updated successfully']);
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
         }
-        return response()->json(['message' => 'Order not found'], 404);
+
+        // Get authentication token and user
+        $token = $request->bearerToken();
+        $user = $token ? \App\Models\User::where('remember_token', $token)->first() : null;
+
+        if ($order->user_id) {
+            // Must be admin or the owner of the order
+            if (!$user || ($user->role !== 'admin' && $user->id != $order->user_id)) {
+                return response()->json(['message' => 'Unauthorized.'], 403);
+            }
+        } else {
+            // Guest order: only admin can modify status, unless they are just updating to Paid status
+            if ($request->has('status') && in_array($request->status, ['Processing', 'Completed'])) {
+                if (!$user || $user->role !== 'admin') {
+                    return response()->json(['message' => 'Admin authorization required.'], 403);
+                }
+            }
+        }
+
+        if ($request->has('status')) {
+            $order->status = $request->status;
+        }
+        if ($request->has('payment_status')) {
+            $order->payment_status = $request->payment_status;
+        }
+        $order->save();
+        return response()->json(['message' => 'Status updated successfully']);
     }
 }

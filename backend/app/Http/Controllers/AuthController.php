@@ -30,9 +30,13 @@ class AuthController extends Controller
             ]);
         }
 
+        $token = bin2hex(random_bytes(20));
+        $user->remember_token = $token;
+        $user->save();
+
         return response()->json([
             'user' => $user,
-            'token' => bin2hex(random_bytes(20)),
+            'token' => $token,
             'role' => $user->role
         ]);
     }
@@ -52,15 +56,24 @@ class AuthController extends Controller
             'role' => 'customer' // Default role
         ]);
 
+        $token = bin2hex(random_bytes(20));
+        $user->remember_token = $token;
+        $user->save();
+
         return response()->json([
             'user' => $user,
-            'token' => bin2hex(random_bytes(20)),
+            'token' => $token,
             'role' => $user->role
         ], 201);
     }
 
     public function logout(Request $request)
     {
+        $user = auth()->user();
+        if ($user) {
+            $user->remember_token = null;
+            $user->save();
+        }
         return response()->json([
             'message' => 'Successfully logged out.'
         ]);

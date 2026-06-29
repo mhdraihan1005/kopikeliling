@@ -5,3 +5,4 @@ export { default as AdminNavbar } from "./AdminNavbar";
 export { default as Card } from "./Card";
 export { default as Notification } from "./Notification";
 export { default as PageTransition } from "./PageTransition";
+export { default as ConfirmModal } from "./ConfirmModal";

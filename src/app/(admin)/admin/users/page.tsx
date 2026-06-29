@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Plus, Edit, Trash, Users as UsersIcon, Shield, User as UserIcon, ChevronDown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { ConfirmModal } from "@/components";
 
 export default function AdminUsersPage() {
   const searchParams = useSearchParams();
@@ -12,6 +13,39 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message: string;
+    onConfirm: () => void;
+    confirmText?: string;
+    type?: "danger" | "warning" | "info";
+  }>({
+    isOpen: false,
+    message: "",
+    onConfirm: () => {},
+  });
+
+  const triggerConfirm = (
+    message: string, 
+    onConfirm: () => void, 
+    title?: string, 
+    confirmText?: string, 
+    type?: "danger" | "warning" | "info"
+  ) => {
+    setConfirmConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      confirmText,
+      type
+    });
+  };
   
   const [formData, setFormData] = useState({
     name: "",
@@ -23,7 +57,10 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/users");
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://127.0.0.1:8000/api/users", {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {},
+      });
       if (res.ok) {
         const data = await res.json();
         setUsers(data);
@@ -86,9 +123,13 @@ export default function AdminUsersPage() {
         delete (payload as any).password;
       }
 
+      const token = localStorage.getItem("token");
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify(payload),
       });
 
@@ -104,10 +145,12 @@ export default function AdminUsersPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Are you sure you want to delete this user?")) {
+    triggerConfirm("Are you sure you want to delete this user?", async () => {
       try {
+        const token = localStorage.getItem("token");
         const res = await fetch(`http://127.0.0.1:8000/api/users/${id}`, {
           method: "DELETE",
+          headers: token ? { "Authorization": `Bearer ${token}` } : {},
         });
         if (res.ok) {
           fetchUsers();
@@ -115,7 +158,7 @@ export default function AdminUsersPage() {
       } catch (error) {
         console.error("Error deleting user", error);
       }
-    }
+    });
   };
 
   const handleToggleStatus = async (user: any) => {
@@ -124,20 +167,30 @@ export default function AdminUsersPage() {
       ? `Activate account for ${user.name}?` 
       : `Deactivate account for ${user.name}?`;
     
-    if (confirm(confirmMsg)) {
-      try {
-        const res = await fetch(`http://127.0.0.1:8000/api/users/${user.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ is_active: newStatus }),
-        });
-        if (res.ok) {
-          fetchUsers();
+    triggerConfirm(
+      confirmMsg, 
+      async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch(`http://127.0.0.1:8000/api/users/${user.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { "Authorization": `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({ is_active: newStatus }),
+          });
+          if (res.ok) {
+            fetchUsers();
+          }
+        } catch (error) {
+          console.error("Error toggling user status", error);
         }
-      } catch (error) {
-        console.error("Error toggling status", error);
-      }
-    }
+      },
+      "Toggle Status",
+      newStatus ? "Activate" : "Deactivate",
+      newStatus ? "info" : "warning"
+    );
   };
 
   return (
@@ -338,6 +391,15 @@ export default function AdminUsersPage() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        confirmText={confirmConfig.confirmText}
+        type={confirmConfig.type}
+      />
     </div>
   );
 }

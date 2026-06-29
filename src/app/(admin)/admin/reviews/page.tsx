@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Star, Trash2, MessageSquare } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { ConfirmModal } from "@/components";
 
 interface Review {
   id: number;
@@ -30,6 +31,29 @@ export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    message: "",
+    onConfirm: () => {},
+  });
+
+  const triggerConfirm = (message: string, onConfirm: () => void, title?: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
   const fetchReviews = async () => {
     try {
       const res = await fetch("http://127.0.0.1:8000/api/reviews");
@@ -54,17 +78,20 @@ export default function AdminReviewsPage() {
   );
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this review?")) return;
-    try {
-      const res = await fetch(`http://127.0.0.1:8000/api/reviews/${id}`, {
-        method: "DELETE"
-      });
-      if (res.ok) {
-        fetchReviews();
+    triggerConfirm("Are you sure you want to delete this review?", async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`http://127.0.0.1:8000/api/reviews/${id}`, {
+          method: "DELETE",
+          headers: token ? { "Authorization": `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          fetchReviews();
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    });
   };
 
   const getImageUrl = (url: string) => {
@@ -164,6 +191,13 @@ export default function AdminReviewsPage() {
           ))}
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

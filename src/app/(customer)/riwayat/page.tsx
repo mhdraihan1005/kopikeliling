@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import { ReceiptText, Clock, CheckCircle2, XCircle, ArrowUpRight, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-hot-toast";
 
 interface OrderItem {
   id: number;
@@ -71,9 +72,13 @@ export default function RiwayatPage() {
     if (!selectedItem) return;
     setSubmittingReview(true);
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch("http://127.0.0.1:8000/api/reviews", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           order_id: selectedItem.orderId,
           product_id: selectedItem.product.id,
@@ -82,7 +87,7 @@ export default function RiwayatPage() {
         })
       });
       if (res.ok) {
-        alert("Thank you for your review!");
+        toast.success("Thank you for your review!");
         setReviewModal(false);
         // Update local state to hide the button immediately
         setOrders(prev => prev.map(o => {
@@ -96,10 +101,10 @@ export default function RiwayatPage() {
         }));
       } else {
         const data = await res.json();
-        alert(data.message || "Failed to send review.");
+        toast.error(data.message || "Failed to send review.");
       }
     } catch (e) {
-      alert("An error occurred.");
+      toast.error("An error occurred.");
     } finally {
       setSubmittingReview(false);
     }
@@ -115,7 +120,10 @@ export default function RiwayatPage() {
         }
         const currentUser = JSON.parse(userStr);
         
-        const res = await fetch(`http://127.0.0.1:8000/api/orders?user_id=${currentUser.id}`);
+        const token = localStorage.getItem("token");
+        const res = await fetch(`http://127.0.0.1:8000/api/orders?user_id=${currentUser.id}`, {
+          headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        });
         if (!res.ok) throw new Error("Failed to fetch history");
         
         const data = await res.json();

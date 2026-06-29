@@ -14,12 +14,21 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        $settings = $request->all();
+        $allowedKeys = [
+            'shop_name',
+            'shop_address',
+            'shop_phone',
+            'shop_instagram',
+            'shop_status',
+            'shop_open_hours'
+        ];
+
+        $settings = $request->only($allowedKeys);
         
         foreach ($settings as $key => $value) {
             Setting::updateOrCreate(
                 ['key' => $key],
-                ['value' => $value]
+                ['value' => $value ?? '']
             );
         }
 

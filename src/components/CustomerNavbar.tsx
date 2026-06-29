@@ -43,7 +43,10 @@ export default function CustomerNavbar() {
   const checkCompletedOrders = async () => {
     if (!user) return;
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/orders?user_id=${user.id}`);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://127.0.0.1:8000/api/orders?user_id=${user.id}`, {
+        headers: token ? { "Authorization": `Bearer ${token}` } : {}
+      });
       if (res.ok) {
         const orders = await res.json();
         const completedOrders = orders.filter((o: any) => o.status === "Completed" || o.status === "Selesai");

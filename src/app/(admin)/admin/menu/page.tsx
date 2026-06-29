@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Plus, Edit, Trash, Package } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { ConfirmModal } from "@/components";
 
 export default function AdminMenuPage() {
   const searchParams = useSearchParams();
@@ -13,6 +14,29 @@ export default function AdminMenuPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    message: "",
+    onConfirm: () => {},
+  });
+
+  const triggerConfirm = (message: string, onConfirm: () => void, title?: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
   
   const [formData, setFormData] = useState<{
     name: string;
@@ -108,22 +132,25 @@ export default function AdminMenuPage() {
   };
 
   const handleDeleteImage = async (imageId: number) => {
-    if (!confirm("Are you sure you want to delete this photo?")) return;
-    try {
-      const res = await fetch(`http://127.0.0.1:8000/api/product-images/${imageId}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        fetchProducts();
-        // Update local form data to remove the image immediately
-        setFormData(prev => ({
-          ...prev,
-          images: (prev as any).images.filter((img: any) => img.id !== imageId)
-        }));
+    triggerConfirm("Are you sure you want to delete this photo?", async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`http://127.0.0.1:8000/api/product-images/${imageId}`, {
+          method: "DELETE",
+          headers: token ? { "Authorization": `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          fetchProducts();
+          // Update local form data to remove the image immediately
+          setFormData(prev => ({
+            ...prev,
+            images: (prev as any).images.filter((img: any) => img.id !== imageId)
+          }));
+        }
+      } catch (error) {
+        console.error("Error deleting image", error);
       }
-    } catch (error) {
-      console.error("Error deleting image", error);
-    }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -152,8 +179,15 @@ export default function AdminMenuPage() {
         payload.append("_method", "PUT");
       }
 
+      const token = localStorage.getItem("token");
+      const headers: any = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const res = await fetch(url, {
         method: "POST", // Always use POST when sending FormData containing files to Laravel
+        headers: headers,
         body: payload,
       });
 
@@ -169,10 +203,12 @@ export default function AdminMenuPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Are you sure you want to delete this item?")) {
+    triggerConfirm("Are you sure you want to delete this item?", async () => {
       try {
+        const token = localStorage.getItem("token");
         const res = await fetch(`http://127.0.0.1:8000/api/products/${id}`, {
           method: "DELETE",
+          headers: token ? { "Authorization": `Bearer ${token}` } : {},
         });
         if (res.ok) {
           fetchProducts();
@@ -180,7 +216,7 @@ export default function AdminMenuPage() {
       } catch (error) {
         console.error("Error deleting product", error);
       }
-    }
+    });
   };
 
   return (
@@ -419,6 +455,13 @@ export default function AdminMenuPage() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }
