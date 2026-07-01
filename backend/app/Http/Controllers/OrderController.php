@@ -98,14 +98,20 @@ class OrderController extends Controller
             }
         }
 
-        // Calculate subtotal from database prices to verify total and apply discount securely
+        // Validate product existence and stock availability, and calculate subtotal
         $subtotal = 0;
         foreach ($request->items as $item) {
             $product = Product::find($item['id']);
-            if ($product) {
-                $qty = $item['qty'] ?? $item['quantity'] ?? 1;
-                $subtotal += $product->price * $qty;
+            if (!$product) {
+                return response()->json(['message' => 'Product not found.'], 422);
             }
+            
+            $qty = $item['qty'] ?? $item['quantity'] ?? 1;
+            if ($product->stock < $qty) {
+                return response()->json(['message' => "The product '{$product->name}' has insufficient stock. Available: {$product->stock}."], 422);
+            }
+            
+            $subtotal += $product->price * $qty;
         }
 
         // Apply 20% discount if the user is a logged-in member with no previous successful orders
@@ -199,7 +205,18 @@ class OrderController extends Controller
                 } elseif ($request->transaction_status == 'pending') {
                     $order->payment_status = 'Pending';
                 } elseif ($request->transaction_status == 'deny' || $request->transaction_status == 'expire' || $request->transaction_status == 'cancel') {
-                    $order->payment_status = 'Failed';
+                    if ($order->payment_status !== 'Failed') {
+                        $order->payment_status = 'Failed';
+                        $order->status = 'Cancelled';
+                        
+                        // Restore product stock
+                        foreach ($order->items as $item) {
+                            $product = Product::find($item['id']);
+                            if ($product) {
+                                $product->increment('stock', $item['qty'] ?? $item['quantity'] ?? 1);
+                            }
+                        }
+                    }
                 }
                 $order->save();
                 return response()->json(['message' => 'success']);
