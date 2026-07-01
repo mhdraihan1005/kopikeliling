@@ -1,0 +1,29 @@
+[
+  {
+    "connections": 50,
+    "requestsPerSecond": 30.2,
+    "latencyAverageMs": 1564.61,
+    "latencyP99Ms": 3202,
+    "totalRequests": 151,
+    "errors": 0,
+    "timeouts": 0
+  },
+  {
+    "connections": 200,
+    "requestsPerSecond": 80,
+    "latencyAverageMs": 1953.79,
+    "latencyP99Ms": 2411,
+    "totalRequests": 400,
+    "errors": 0,
+    "timeouts": 0
+  },
+  {
+    "connections": 500,
+    "requestsPerSecond": 100,
+    "latencyAverageMs": 4162.36,
+    "latencyP99Ms": 4650,
+    "totalRequests": 500,
+    "errors": 0,
+    "timeouts": 0
+  }
+]

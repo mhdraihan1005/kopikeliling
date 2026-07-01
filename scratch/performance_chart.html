@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>KopiKuy Performance Testing Chart</title>
+  <!-- Load Chart.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #09090b; /* zinc-950 */
+      color: #ffffff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 1000px;
+      height: 600px;
+      box-sizing: border-box;
+    }
+    .chart-container {
+      width: 900px;
+      height: 420px;
+      background-color: #18181b; /* zinc-900 */
+      border: 1px border-zinc-800;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 5px;
+      font-size: 28px;
+      background: linear-gradient(to right, #f59e0b, #fef08a); /* amber-500 to amber-200 */
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p {
+      color: #a1a1aa; /* zinc-400 */
+      font-size: 16px;
+      margin-bottom: 25px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>KopiKuy Web Application Load Test Results</h2>
+  <p>Performance scalability across 50, 200, and 500 concurrent connections</p>
+  
+  <div class="chart-container">
+    <canvas id="perfChart"></canvas>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('perfChart').getContext('2d');
+    
+    // Hardcoded test results matching our real run
+    const connections = ['50 Users', '200 Users', '500 Users'];
+    const rpsData = [30.2, 80.0, 100.0];
+    const latencyData = [1564.6, 1953.8, 4162.4];
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: connections,
+        datasets: [
+          {
+            label: 'Throughput (Requests / Second)',
+            data: rpsData,
+            borderColor: '#f59e0b', // amber-500
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            borderWidth: 4,
+            pointRadius: 6,
+            pointBackgroundColor: '#f59e0b',
+            yAxisID: 'yRps',
+            tension: 0.1
+          },
+          {
+            label: 'Average Latency (Milliseconds)',
+            data: latencyData,
+            borderColor: '#3b82f6', // blue-500
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 4,
+            pointRadius: 6,
+            pointBackgroundColor: '#3b82f6',
+            yAxisID: 'yLatency',
+            tension: 0.1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#ffffff',
+              font: { size: 14, weight: 'bold' }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#27272a' },
+            ticks: { color: '#ffffff', font: { size: 14 } }
+          },
+          yRps: {
+            type: 'linear',
+            position: 'left',
+            grid: { color: '#27272a' },
+            ticks: { color: '#f59e0b', font: { size: 13 } },
+            title: {
+              display: true,
+              text: 'Requests per Second (RPS)',
+              color: '#f59e0b',
+              font: { size: 14, weight: 'bold' }
+            }
+          },
+          yLatency: {
+            type: 'linear',
+            position: 'right',
+            grid: { drawOnChartArea: false }, // only draw grid lines for left axis
+            ticks: { color: '#3b82f6', font: { size: 13 } },
+            title: {
+              display: true,
+              text: 'Latency (ms)',
+              color: '#3b82f6',
+              font: { size: 14, weight: 'bold' }
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
