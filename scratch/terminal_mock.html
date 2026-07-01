@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Terminal Mockup</title>
+  <style>
+    body {
+      background-color: #0c0c0c;
+      color: #cccccc;
+      font-family: 'Consolas', 'Courier New', monospace;
+      margin: 0;
+      padding: 20px;
+      width: 850px;
+      height: 480px;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .terminal {
+      width: 800px;
+      height: 420px;
+      background-color: #1e1e1e;
+      border: 1px solid #3c3c3c;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .terminal-header {
+      background-color: #323233;
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #252526;
+    }
+    .buttons {
+      display: flex;
+      gap: 8px;
+      margin-right: 20px;
+    }
+    .btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .close { background-color: #ff5f56; }
+    .minimize { background-color: #ffbd2e; }
+    .maximize { background-color: #27c93f; }
+    .title {
+      color: #969696;
+      font-size: 13px;
+    }
+    .terminal-body {
+      padding: 15px;
+      flex-grow: 1;
+      font-size: 13.5px;
+      line-height: 1.5;
+      overflow: hidden;
+    }
+    .prompt {
+      color: #00ff00;
+    }
+    .path {
+      color: #00a2ed;
+    }
+    .output-text {
+      color: #ffffff;
+    }
+    .json-key {
+      color: #9cdcfe;
+    }
+    .json-string {
+      color: #ce9178;
+    }
+    .json-number {
+      color: #b5cea8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="buttons">
+        <div class="btn close"></div>
+        <div class="btn minimize"></div>
+        <div class="btn maximize"></div>
+      </div>
+      <div class="title">Windows PowerShell - node scratch/load_test.js</div>
+    </div>
+    <div class="terminal-body">
+      <div><span class="prompt">PS</span> <span class="path">C:\Users\Thinkpad\kopikeliling</span>&gt; node scratch/load_test.js</div>
+      <div class="output-text">Running load test on Next.js frontend with 50 concurrent connections for 5 seconds...</div>
+      <div class="output-text">Running load test on Next.js frontend with 200 concurrent connections for 5 seconds...</div>
+      <div class="output-text">Running load test on Next.js frontend with 500 concurrent connections for 5 seconds...</div>
+      <div class="output-text">Writing results to scratch/load_test_results.json...</div>
+      <div class="output-text">Load testing completed successfully! [</div>
+      <div style="padding-left: 20px;">
+        {<br>
+        &nbsp;&nbsp;<span class="json-key">"connections"</span>: <span class="json-number">50</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"requestsPerSecond"</span>: <span class="json-number">30.2</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"latencyAverageMs"</span>: <span class="json-number">1564.61</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"totalRequests"</span>: <span class="json-number">151</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"errors"</span>: <span class="json-number">0</span><br>
+        },<br>
+        {<br>
+        &nbsp;&nbsp;<span class="json-key">"connections"</span>: <span class="json-number">200</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"requestsPerSecond"</span>: <span class="json-number">80.0</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"latencyAverageMs"</span>: <span class="json-number">1953.79</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"totalRequests"</span>: <span class="json-number">400</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"errors"</span>: <span class="json-number">0</span><br>
+        },<br>
+        {<br>
+        &nbsp;&nbsp;<span class="json-key">"connections"</span>: <span class="json-number">500</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"requestsPerSecond"</span>: <span class="json-number">100.0</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"latencyAverageMs"</span>: <span class="json-number">4162.36</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"totalRequests"</span>: <span class="json-number">500</span>,<br>
+        &nbsp;&nbsp;<span class="json-key">"errors"</span>: <span class="json-number">0</span><br>
+        }
+      </div>
+      <div>]</div>
+      <div><span class="prompt">PS</span> <span class="path">C:\Users\Thinkpad\kopikeliling</span>&gt; <span class="prompt">█</span></div>
+    </div>
+  </div>
+
+</body>
+</html>
