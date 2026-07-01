@@ -1,12 +1,11 @@
 import os
 import docx
 from docx.shared import Inches, Pt
-from docx.oxml import OxmlElement
-from docx.oxml.ns import qn
 
 # Paths
 output_path = 'c:/Users/Thinkpad/kopikeliling/Lampiran_E_Performance_Testing.docx'
 chart_path = 'C:/Users/Thinkpad/.gemini/antigravity/brain/f9ca9f29-167d-4a25-aa6f-fd3745665f02/performance_chart.png'
+terminal_path = 'C:/Users/Thinkpad/.gemini/antigravity/brain/f9ca9f29-167d-4a25-aa6f-fd3745665f02/tool_usage_terminal.png'
 
 # 1. Create a brand new document
 doc = docx.Document()
@@ -42,22 +41,36 @@ p_env.add_run("MySQL (MariaDB 10.4 via XAMPP)\n")
 p_env.add_run("•  Skenario Uji: ").bold = True
 p_env.add_run("Pengiriman beban konstan selama 5 detik per tahap untuk menguji stabilitas konkurensi web app.")
 
-# 2. Grafik Hasil Pengujian
-doc.add_heading('2. Grafik Hasil Pengujian (Performance Metrics Chart)', level=2)
+# 2. Screenshot Penggunaan Tools
+doc.add_heading('2. Screenshot Penggunaan Tools', level=2)
+doc.add_paragraph(
+    "Berikut adalah tangkapan layar pengeksekusian skrip pengujian beban asinkron Node.js Autocannon menggunakan "
+    "terminal Windows PowerShell untuk skenario beban 50, 200, dan 500 koneksi simultan:"
+)
+
+# Embed terminal image
+if os.path.exists(terminal_path):
+    print("Embedding terminal image...")
+    doc.add_picture(terminal_path, width=Inches(6.0))
+else:
+    doc.add_paragraph("[Tangkapan layar penggunaan tools 'tool_usage_terminal.png' tidak ditemukan]")
+
+# 3. Grafik Hasil Pengujian
+doc.add_heading('3. Grafik Hasil Pengujian (Performance Metrics Chart)', level=2)
 doc.add_paragraph(
     "Grafik di bawah menggambarkan perbandingan pertumbuhan throughput (Requests per Second / RPS) "
     "dengan waktu respon rata-rata (Average Latency dalam milidetik) saat sistem menerima lonjakan pengguna:"
 )
 
-# Embed image
+# Embed chart image
 if os.path.exists(chart_path):
     print("Embedding chart image...")
     doc.add_picture(chart_path, width=Inches(6.0))
 else:
     doc.add_paragraph("[Gambar Grafik Kinerja 'performance_chart.png' tidak ditemukan]")
 
-# 3. Tabel Hasil Data Kinerja
-doc.add_heading('3. Tabel Hasil Data Kinerja', level=2)
+# 4. Tabel Hasil Data Kinerja
+doc.add_heading('4. Tabel Hasil Data Kinerja', level=2)
 doc.add_paragraph("Berikut adalah rincian data metrik kinerja yang berhasil dicatat selama pengujian beban:")
 
 # Create table
@@ -96,8 +109,8 @@ for r_idx, row_data in enumerate(rows_data):
 # Spacer
 doc.add_paragraph()
 
-# 4. Analisis Hasil Pengujian
-doc.add_heading('4. Analisis Hasil Pengujian', level=2)
+# 5. Analisis Hasil Pengujian
+doc.add_heading('5. Analisis Hasil Pengujian', level=2)
 p_analysis1 = doc.add_paragraph()
 p_analysis1.add_run("•  Skalabilitas Kapasitas (RPS): ").bold = True
 p_analysis1.add_run(
@@ -132,4 +145,4 @@ sys.path.append('c:/Users/Thinkpad/kopikeliling')
 from format_docx import format_document
 format_document(output_path)
 
-print("Created and formatted Lampiran_E_Performance_Testing.docx successfully!")
+print("Created and formatted Lampiran_E_Performance_Testing.docx with terminal and chart successfully!")
