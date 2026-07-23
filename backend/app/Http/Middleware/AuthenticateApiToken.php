@@ -16,7 +16,7 @@ class AuthenticateApiToken
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        $user = User::where('remember_token', $token)->first();
+        $user = User::where('remember_token', hash('sha256', $token))->first();
 
         if (!$user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);

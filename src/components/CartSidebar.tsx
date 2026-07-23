@@ -117,7 +117,11 @@ export default function CartSidebar({
                   "Content-Type": "application/json",
                   ...(token ? { "Authorization": `Bearer ${token}` } : {})
                 },
-                body: JSON.stringify({ payment_status: 'Paid', status: 'Processing' }),
+                body: JSON.stringify({ 
+                  payment_status: 'Paid', 
+                  status: 'Processing',
+                  midtrans_order_id: result.order_id
+                }),
               });
             } catch (e) {
               console.error('Failed to update status', e);

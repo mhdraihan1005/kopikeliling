@@ -98,7 +98,11 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
           await fetch(`http://127.0.0.1:8000/api/orders/${order.id}/status`, {
             method: "PUT",
             headers: headers,
-            body: JSON.stringify({ payment_status: 'Paid', status: 'Processing' }),
+            body: JSON.stringify({ 
+              payment_status: 'Paid', 
+              status: 'Processing',
+              midtrans_order_id: result.order_id 
+            }),
           });
           toast.success("Payment Successful! Order is being processed.");
           // Refresh order status

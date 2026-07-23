@@ -33,7 +33,7 @@ class OrderTest extends TestCase
             'role' => 'customer',
             'is_active' => true
         ]);
-        $user->remember_token = 'test_token';
+        $user->remember_token = hash('sha256', 'test_token');
         $user->save();
         
         $product = Product::create([
@@ -88,7 +88,7 @@ class OrderTest extends TestCase
             'role' => 'customer',
             'is_active' => true
         ]);
-        $user->remember_token = 'test_token';
+        $user->remember_token = hash('sha256', 'test_token');
         $user->save();
         
         $product = Product::create([

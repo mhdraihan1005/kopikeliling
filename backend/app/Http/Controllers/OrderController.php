@@ -62,7 +62,7 @@ class OrderController extends Controller
 
         if ($order->user_id) {
             $token = request()->bearerToken();
-            $user = $token ? \App\Models\User::where('remember_token', $token)->first() : null;
+            $user = $token ? \App\Models\User::where('remember_token', hash('sha256', $token))->first() : null;
 
             if (!$user || ($user->role !== 'admin' && $user->id != $order->user_id)) {
                 return response()->json(['message' => 'Unauthorized to view this order.'], 403);
@@ -91,7 +91,7 @@ class OrderController extends Controller
 
         if ($request->user_id) {
             $token = $request->bearerToken();
-            $user = $token ? \App\Models\User::where('remember_token', $token)->first() : null;
+            $user = $token ? \App\Models\User::where('remember_token', hash('sha256', $token))->first() : null;
 
             if (!$user || $user->id != $request->user_id) {
                 return response()->json(['message' => 'Unauthorized user_id.'], 403);
@@ -235,19 +235,61 @@ class OrderController extends Controller
 
         // Get authentication token and user
         $token = $request->bearerToken();
-        $user = $token ? \App\Models\User::where('remember_token', $token)->first() : null;
+        $user = $token ? \App\Models\User::where('remember_token', hash('sha256', $token))->first() : null;
 
-        if ($order->user_id) {
-            // Must be admin or the owner of the order
-            if (!$user || ($user->role !== 'admin' && $user->id != $order->user_id)) {
-                return response()->json(['message' => 'Unauthorized.'], 403);
+        // Determine if current request has Admin privileges
+        $isAdmin = $user && $user->role === 'admin';
+
+        if (!$isAdmin) {
+            // If NOT admin, the only allowed status transition is to 'Processing' and payment_status to 'Paid'
+            // and it MUST be verified with Midtrans API.
+            $status = $request->input('status');
+            $paymentStatus = $request->input('payment_status');
+
+            if ($status !== 'Processing' || $paymentStatus !== 'Paid') {
+                return response()->json(['message' => 'Unauthorized status transition.'], 403);
             }
-        } else {
-            // Guest order: only admin can modify status, unless they are just updating to Paid status
-            if ($request->has('status') && in_array($request->status, ['Processing', 'Completed'])) {
-                if (!$user || $user->role !== 'admin') {
-                    return response()->json(['message' => 'Admin authorization required.'], 403);
+
+            // If the order is owned by a user, check if this is indeed the owner
+            if ($order->user_id) {
+                if (!$user || $user->id != $order->user_id) {
+                    return response()->json(['message' => 'Unauthorized.'], 403);
                 }
+            }
+
+            // Verify with Midtrans
+            $midtransOrderId = $request->input('midtrans_order_id');
+            if (!$midtransOrderId) {
+                return response()->json(['message' => 'Midtrans order ID is required for verification.'], 400);
+            }
+
+            try {
+                \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+                \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+                \Midtrans\Config::$isSanitized = env('MIDTRANS_IS_SANITIZED', true);
+                \Midtrans\Config::$is3ds = env('MIDTRANS_IS_3DS', true);
+
+                $transaction = \Midtrans\Transaction::status($midtransOrderId);
+
+                // Verify order ID prefix
+                $parts = explode('-', $transaction->order_id);
+                if ($parts[0] != $order->id) {
+                    return response()->json(['message' => 'Invalid Midtrans order ID.'], 422);
+                }
+
+                // Verify transaction is settled/captured
+                $isPaid = ($transaction->transaction_status == 'capture' || $transaction->transaction_status == 'settlement');
+                if (!$isPaid) {
+                    return response()->json(['message' => 'Transaction not paid yet according to Midtrans.'], 422);
+                }
+
+                // Verify gross amount
+                if (round($transaction->gross_amount) != $order->total_price) {
+                    return response()->json(['message' => 'Gross amount mismatch.'], 422);
+                }
+
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Failed to verify transaction with Midtrans.', 'error' => $e->getMessage()], 500);
             }
         }
 

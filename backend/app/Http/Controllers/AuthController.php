@@ -31,7 +31,7 @@ class AuthController extends Controller
         }
 
         $token = bin2hex(random_bytes(20));
-        $user->remember_token = $token;
+        $user->remember_token = hash('sha256', $token);
         $user->save();
 
         return response()->json([
@@ -57,7 +57,7 @@ class AuthController extends Controller
         ]);
 
         $token = bin2hex(random_bytes(20));
-        $user->remember_token = $token;
+        $user->remember_token = hash('sha256', $token);
         $user->save();
 
         return response()->json([
