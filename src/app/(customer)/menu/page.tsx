@@ -244,7 +244,7 @@ function MenuCard({ item, addToCart, getImageUrl, isShopClosed }: { item: MenuIt
         </div>
         <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-white/10 flex items-center gap-1 z-20">
            <span className={`text-[8px] sm:text-[10px] font-black uppercase tracking-widest ${item.stock > 0 ? 'text-amber-500' : 'text-red-500'}`}>
-             {item.stock > 0 ? `Stock: ${item.stock}` : 'Out of Stock'}
+             {item.stock > 0 ? 'Ready' : 'Tidak Tersedia'}
            </span>
         </div>
         <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-white/10 flex items-center gap-1 z-20">
@@ -297,7 +297,7 @@ function MenuCard({ item, addToCart, getImageUrl, isShopClosed }: { item: MenuIt
                 : "bg-white/10 text-white/30 cursor-not-allowed"
             }`}
           >
-            {isShopClosed ? "Closed" : item.stock > 0 ? "Order" : "Out of Stock"}
+            {isShopClosed ? "Closed" : item.stock > 0 ? "Order" : "Tidak Tersedia"}
           </button>
         </div>
       </div>

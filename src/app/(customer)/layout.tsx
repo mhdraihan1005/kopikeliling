@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function CustomerLayout({
   children,
@@ -9,8 +8,8 @@ export default function CustomerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute requiredRole="customer">
+    <>
       {children}
-    </ProtectedRoute>
+    </>
   );
 }

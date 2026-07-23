@@ -7,6 +7,7 @@ import PageTransition from "@/components/PageTransition";
 import { ReceiptText, Clock, CheckCircle2, XCircle, ArrowUpRight, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-hot-toast";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface OrderItem {
   id: number;
@@ -208,10 +209,11 @@ export default function RiwayatPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen selection:bg-amber-500/30">
-      <CustomerNavbar />
+    <ProtectedRoute requiredRole="customer">
+      <div className="flex flex-col min-h-screen selection:bg-amber-500/30">
+        <CustomerNavbar />
 
-      <main className="flex-1 relative w-full">
+        <main className="flex-1 relative w-full">
         <PageTransition variant="slideUp">
           <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-10 lg:py-16">
           
@@ -419,6 +421,7 @@ export default function RiwayatPage() {
       )}
 
       <Footer />
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }
